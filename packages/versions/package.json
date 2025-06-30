@@ -1,0 +1,46 @@
+{
+  "name": "@feature-list/versions",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "版本配置管理包，用于定义和管理不同版本的功能配置",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "configs"
+  ],
+  "scripts": {
+    "build": "tsc && rollup -c",
+    "build:types": "tsc --emitDeclarationOnly",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "feature-flags",
+    "version-management",
+    "configuration",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "rollup": "^3.0.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "tslib": "^2.6.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/feature-list.git",
+    "directory": "packages/versions"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

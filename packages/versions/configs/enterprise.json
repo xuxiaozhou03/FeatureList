@@ -1,0 +1,53 @@
+{
+  "version": "enterprise-v1.0",
+  "name": "企业版",
+  "features": [
+    {
+      "id": "auth",
+      "enabled": true,
+      "config": {
+        "sso": true,
+        "ldap": true,
+        "oauth": {
+          "google": true,
+          "github": true
+        }
+      }
+    },
+    {
+      "id": "dashboard",
+      "enabled": true,
+      "config": {
+        "widgets": ["chart", "table", "kpi", "calendar"],
+        "customizable": true
+      }
+    },
+    {
+      "id": "reports",
+      "enabled": true,
+      "config": {
+        "export": true,
+        "schedule": true,
+        "customFields": true
+      }
+    },
+    {
+      "id": "advanced-reports",
+      "enabled": true,
+      "config": {
+        "analytics": true,
+        "charts": ["line", "bar", "pie", "scatter"],
+        "realtime": true
+      }
+    },
+    {
+      "id": "api-management",
+      "enabled": true,
+      "config": {
+        "rateLimit": true,
+        "monitoring": true,
+        "documentation": true
+      }
+    }
+  ]
+}
