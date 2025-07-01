@@ -1,0 +1,33 @@
+{
+  "name": "feature-list-monorepo",
+  "version": "1.0.0",
+  "description": "基于功能清单的多版本前端项目",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter app dev",
+    "dev:app": "pnpm --filter app dev",
+    "dev:config": "pnpm --filter config-manager dev",
+    "dev:basic": "VITE_VERSION=basic pnpm --filter app dev",
+    "dev:pro": "VITE_VERSION=pro pnpm --filter app dev",
+    "dev:enterprise": "VITE_VERSION=enterprise pnpm --filter app dev",
+    "build:all": "pnpm -r build",
+    "build:app": "pnpm --filter app build",
+    "build:config": "pnpm --filter config-manager build",
+    "build:versions": "pnpm --filter @feature-list/versions build",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check",
+    "demo": "./demo.sh",
+    "sync:configs": "./sync-configs.sh",
+    "start:all": "concurrently \"pnpm dev:app\" \"pnpm dev:config\"",
+    "validate": "./validate.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "concurrently": "^9.2.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
