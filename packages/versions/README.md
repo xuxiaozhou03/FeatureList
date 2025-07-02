@@ -1,36 +1,26 @@
-# 版本及功能清单
+# 版本管理
 
-## 约束
-
-```ts
-interface BaseFeature<TParams = Record<string, any>> {
-  // 功能名称
-  name: string;
-  // 是否启用该功能
-  enabled: boolean;
-  // 功能参数配置
-  params?: Record<string, any>;
-  // 子功能
-  children?: Record<string, BaseFeature>;
-}
-interface BaseVersion {
-  // 版本号
-  no: string;
-  // 版本描述
-  description: string;
-  // 功能清单
-  features: Record<string, BaseFeature>;
-}
-```
-
-## 真正版本及详情功能清单
-
-> 基于约束，实现完整的版本及详细功能清单
+## 完善版本及功能清单定义
 
 ```ts
-interface Version extends BaseVersion {
+export interface VersionConfig extends IVersionConfig {
   features: {
-    "user-management": BaseFeature;
+    "user-management": FeatureConfig<{
+      /** 最大用户数 */ maxUsers: number | "unlimited";
+    }>;
   };
 }
 ```
+
+## 在 list 目录定义不同版本
+
+```
+list
+    basic.ts
+    enterprise.ts
+```
+
+## 脚本
+
+> 补全 list/index.ts
+> 生成 json

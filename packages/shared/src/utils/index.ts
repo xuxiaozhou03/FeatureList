@@ -2,9 +2,8 @@ import { IVersionConfig, FeatureConfig } from "../types";
 
 /**
  * 基础功能管理器实现
- * 实现了 BaseFeatureManager 接口的基本功能
  */
-export class FeatureManager implements BaseFeatureManager<IVersionConfig> {
+export class FeatureManager {
   protected config: IVersionConfig;
 
   constructor(config: IVersionConfig) {
@@ -16,7 +15,6 @@ export class FeatureManager implements BaseFeatureManager<IVersionConfig> {
    * @param version 版本名称（这里返回当前配置，子类可以重写支持多版本）
    */
   getVersionConfig(version?: string): IVersionConfig | null {
-    // 基础实现只支持单一版本配置
     return this.config;
   }
 

@@ -1,15 +1,31 @@
-import { IVersionConfig, FeatureConfig } from "@feature-list/shared";
+export interface FeatureConfig<
+  TParams = Record<string, any>,
+  TChildren extends Record<string, any> | undefined = undefined
+> {
+  /** 功能名称 */
+  name: string;
+  /** 是否启用该功能 */
+  enabled: boolean;
+  /** 功能参数配置，支持泛型约束 */
+  params: TParams;
+  /** 功能描述信息（可选） */
+  description?: string;
+  /** 子功能配置（可选），支持嵌套功能结构 */
+  children?: TChildren;
+}
 
 /**
  * 基础版本配置类型
  * 根据 basic.json 的实际结构定义
  */
-export interface VersionConfig extends IVersionConfig {
-  /** 主题配置 */
-  theme?: {
-    primaryColor: string;
-    backgroundColor: string;
-  };
+export interface VersionConfig {
+  /** 版本标识符 */
+  version: string;
+  /** 版本名称 */
+  name: string;
+  /** 版本描述信息 */
+  description: string;
+
   features: {
     "user-management": FeatureConfig<{
       /** 最大用户数 */

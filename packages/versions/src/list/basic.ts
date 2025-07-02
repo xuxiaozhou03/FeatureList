@@ -8,10 +8,6 @@ export const basic: VersionConfig = {
   version: "basic",
   name: "基础版本",
   description: "提供基础功能的入门版本",
-  theme: {
-    primaryColor: "#007bff",
-    backgroundColor: "#f8f9fa",
-  },
   features: {
     "user-management": {
       name: "用户管理",

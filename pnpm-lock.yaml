@@ -131,6 +131,12 @@ importers:
       '@feature-list/shared':
         specifier: workspace:*
         version: link:../shared
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@rollup/plugin-json':
         specifier: ^6.0.0
@@ -138,6 +144,12 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^11.1.0
         version: 11.1.6(rollup@3.29.5)(tslib@2.8.1)(typescript@5.8.3)
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.2.0
+        version: 18.3.7(@types/react@18.3.23)
       rollup:
         specifier: ^3.29.0
         version: 3.29.5
