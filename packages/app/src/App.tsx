@@ -1,7 +1,7 @@
-import { useVersionConfig } from "@feature-list/shared";
+import { useGlobalVersion } from "@feature-list/versions";
 
 function App() {
-  const { config, loading, error } = useVersionConfig();
+  const { config, loading, error } = useGlobalVersion();
 
   if (loading) {
     return (

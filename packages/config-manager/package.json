@@ -11,7 +11,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@feature-list/shared": "workspace:*",
+    "@ant-design/icons": "^6.0.0",
+    "@feature-list/define": "workspace:*",
+    "antd": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

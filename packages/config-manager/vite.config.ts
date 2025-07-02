@@ -6,9 +6,7 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      "@shared": resolve(__dirname, "../shared/src"),
-    },
+    alias: {},
   },
   server: {
     port: 3001,

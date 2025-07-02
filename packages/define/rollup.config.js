@@ -20,5 +20,5 @@ export default {
       tsconfig: "./tsconfig.json",
     }),
   ],
-  external: ["@feature-list/shared"],
+  external: [],
 };
