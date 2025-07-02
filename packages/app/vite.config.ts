@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
 
 function getVersionType(
   version?: string
@@ -21,13 +20,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     resolve: {
-      alias: {
-        "@core": resolve(__dirname, "../core/src"),
-      },
+      alias: {},
     },
     define: {
       "process.env.VERSION": JSON.stringify(version),
-      "process.env.VERSION_TYPE": JSON.stringify(versionType),
     },
     server: {
       port: 3000,

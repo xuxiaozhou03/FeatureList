@@ -32,6 +32,7 @@ export const VersionDrawer: React.FC<VersionDrawerProps> = ({
           version: editingVersion.version,
           name: editingVersion.name,
           description: editingVersion.description,
+          features: editingVersion.features,
         });
       } else {
         // 新建模式：设置默认值
@@ -40,6 +41,7 @@ export const VersionDrawer: React.FC<VersionDrawerProps> = ({
           version: "1.0.0",
           name: "新版本",
           description: "版本描述",
+          features: {},
         });
       }
     }
