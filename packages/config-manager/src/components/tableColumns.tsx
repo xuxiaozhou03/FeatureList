@@ -1,12 +1,12 @@
 import { Button, Space, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ColumnType } from "antd/es/table";
-import type { VersionItem } from "../hooks/useVersions";
+import { VersionConfig } from "@feature-list/define";
 
 export const createColumns = (
-  onEdit: (version: VersionItem) => void,
+  onEdit: (version: VersionConfig) => void,
   onDelete: (id: string) => void
-): ColumnType<VersionItem>[] => [
+): ColumnType<VersionConfig>[] => [
   {
     title: "版本号",
     dataIndex: "version",
@@ -25,12 +25,6 @@ export const createColumns = (
     ellipsis: true,
   },
   {
-    title: "创建时间",
-    dataIndex: "createdAt",
-    key: "createdAt",
-    width: 120,
-  },
-  {
     title: "操作",
     key: "action",
     width: 200,
@@ -45,7 +39,7 @@ export const createColumns = (
         </Button>
         <Popconfirm
           title="确定删除这个版本吗？"
-          onConfirm={() => onDelete(record.id)}
+          onConfirm={() => onDelete(record.version)}
           okText="确定"
           cancelText="取消"
         >

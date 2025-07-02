@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, Button, Space, Drawer, Card } from "antd";
 import { FormRenderer } from "./FormRenderer";
-import { config } from "@feature-list/define";
-import type { VersionItem } from "../hooks/useVersions";
+import { config, VersionConfig } from "@feature-list/define";
 
 interface FormValues {
   [key: string]: any;
@@ -10,7 +9,7 @@ interface FormValues {
 
 interface VersionDrawerProps {
   visible: boolean;
-  editingVersion: VersionItem | null;
+  editingVersion: VersionConfig | null;
   onClose: () => void;
   onSave: (values: FormValues) => void;
 }

@@ -8,6 +8,7 @@ export interface VersionConfig {
   name: string;
   // 版本描述
   description: string;
+  // 功能清单
   features: {
     // 工作台
     dashbord: {
