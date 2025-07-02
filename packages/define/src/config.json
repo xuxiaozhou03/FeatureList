@@ -2,8 +2,7 @@
   {
     "label": "版本标识符",
     "name": "version",
-    "required": true,
-    "type": "string"
+    "required": true
   },
   {
     "label": "版本名称",

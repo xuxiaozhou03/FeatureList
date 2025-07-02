@@ -1,0 +1,27 @@
+{
+  "name": "企业版",
+  "description": "企业版",
+  "features": {
+    "dashbord": {
+      "enabled": true
+    },
+    "projects": {
+      "enabled": true,
+      "pipelines": {
+        "enabled": true,
+        "params": {
+          "max": 1
+        }
+      }
+    },
+    "issues": {
+      "enabled": false
+    },
+    "code": {
+      "enabled": true,
+      "params": {
+        "force_pull": false
+      }
+    }
+  }
+}

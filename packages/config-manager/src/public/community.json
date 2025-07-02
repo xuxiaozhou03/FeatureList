@@ -1,0 +1,27 @@
+{
+  "name": "社区版",
+  "description": "社区版",
+  "features": {
+    "dashbord": {
+      "enabled": true
+    },
+    "projects": {
+      "enabled": true,
+      "pipelines": {
+        "enabled": true,
+        "params": {
+          "max": 1
+        }
+      }
+    },
+    "issues": {
+      "enabled": true
+    },
+    "code": {
+      "enabled": true,
+      "params": {
+        "force_pull": false
+      }
+    }
+  }
+}

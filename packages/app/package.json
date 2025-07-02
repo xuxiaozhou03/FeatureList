@@ -5,7 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:community": "VERSION=community vite",
+    "dev:enterprise": "VERSION=enterprise vite",
+    "dev:professional": "VERSION=professional vite",
     "build": "tsc && vite build",
+    "build:community": "tsc && VERSION=community vite build",
+    "build:enterprise": "tsc && VERSION=enterprise vite build",
+    "build:professional": "tsc && VERSION=professional vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"

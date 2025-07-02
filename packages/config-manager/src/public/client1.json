@@ -1,0 +1,27 @@
+{
+  "name": "客户1",
+  "description": "客户1",
+  "features": {
+    "dashbord": {
+      "enabled": true
+    },
+    "projects": {
+      "enabled": true,
+      "pipelines": {
+        "enabled": true,
+        "params": {
+          "max": 1000
+        }
+      }
+    },
+    "issues": {
+      "enabled": true
+    },
+    "code": {
+      "enabled": true,
+      "params": {
+        "force_pull": false
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "json": "community"
+  },
+  {
+    "id": 2,
+    "json": "enterprise"
+  },
+  {
+    "id": 3,
+    "json": "professional"
+  },
+  {
+    "id": 4,
+    "json": "client1"
+  }
+]
