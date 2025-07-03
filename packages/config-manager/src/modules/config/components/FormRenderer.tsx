@@ -3,11 +3,13 @@ import { Form, Input, InputNumber, Switch, Card, Divider } from "antd";
 interface FormRenderProps {
   items: any[];
   prefix?: string;
+  onChange?: () => void;
 }
 
 export const FormRenderer: React.FC<FormRenderProps> = ({
   items,
   prefix = "",
+  onChange,
 }) => {
   const renderFormItems = (items: any[], prefix = ""): React.ReactNode[] => {
     return items.map((item) => {
@@ -27,7 +29,7 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                 : []
             }
           >
-            <Input placeholder={`请输入${item.label}`} />
+            <Input placeholder={`请输入${item.label}`} onChange={onChange} />
           </Form.Item>
         );
       }
@@ -46,9 +48,10 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
           >
             <InputNumber
               placeholder={`请输入${item.label}`}
-              style={{ width: "100%" }}
+              className="w-full"
               min={item.label.includes("[1, 100]") ? 1 : undefined}
               max={item.label.includes("[1, 100]") ? 100 : undefined}
+              onChange={onChange}
             />
           </Form.Item>
         );
@@ -67,7 +70,7 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                 : []
             }
           >
-            <Switch />
+            <Switch onChange={onChange} />
           </Form.Item>
         );
       }
@@ -116,7 +119,7 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
               return (
                 <Card
                   title={item.label}
-                  style={{ marginBottom: 16 }}
+                  className="mb-4 shadow-sm"
                   size="small"
                   styles={{
                     body: !isEnabled ? { display: "none" } : {},
@@ -125,38 +128,33 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                     <Form.Item
                       name={[...fieldNameArray, "enabled"]}
                       valuePropName="checked"
-                      style={{ margin: 0 }}
+                      className="m-0"
                     >
                       <Switch
                         checkedChildren="启用"
                         unCheckedChildren="关闭"
                         size="small"
+                        onChange={onChange}
                       />
                     </Form.Item>
                   }
                 >
                   {isEnabled && (
-                    <>
+                    <div className="space-y-4">
                       {/* 父级功能的参数配置 */}
                       {item.params && item.params.length > 0 && (
-                        <>
-                          <Divider
-                            orientation="left"
-                            style={{ margin: "12px 0" }}
-                          >
+                        <div>
+                          <Divider orientation="left" className="my-3">
                             {item.label} 配置
                           </Divider>
                           {renderFormItems(item.params, `${fieldName}.params`)}
-                        </>
+                        </div>
                       )}
 
                       {/* 子功能配置 */}
                       {item.children.length > 0 && (
-                        <>
-                          <Divider
-                            orientation="left"
-                            style={{ margin: "12px 0" }}
-                          >
+                        <div>
+                          <Divider orientation="left" className="my-3">
                             子功能配置
                           </Divider>
                           {item.children.map((child: any) => (
@@ -185,7 +183,7 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                                 return (
                                   <Card
                                     title={child.label}
-                                    style={{ marginBottom: 12 }}
+                                    className="mb-3 shadow-sm border-gray-200"
                                     size="small"
                                     type="inner"
                                     styles={{
@@ -201,12 +199,13 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                                           "enabled",
                                         ]}
                                         valuePropName="checked"
-                                        style={{ margin: 0 }}
+                                        className="m-0"
                                       >
                                         <Switch
                                           checkedChildren="启用"
                                           unCheckedChildren="关闭"
                                           size="small"
+                                          onChange={onChange}
                                         />
                                       </Form.Item>
                                     }
@@ -214,10 +213,10 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                                     {isChildEnabled &&
                                       child.params &&
                                       child.params.length > 0 && (
-                                        <>
+                                        <div>
                                           <Divider
                                             orientation="left"
-                                            style={{ margin: "12px 0" }}
+                                            className="my-3"
                                           >
                                             参数配置
                                           </Divider>
@@ -225,16 +224,16 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                                             child.params,
                                             `${fieldName}.${child.name}.params`
                                           )}
-                                        </>
+                                        </div>
                                       )}
                                   </Card>
                                 );
                               }}
                             </Form.Item>
                           ))}
-                        </>
+                        </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </Card>
               );
@@ -262,7 +261,7 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
               return (
                 <Card
                   title={item.label}
-                  style={{ marginBottom: 16 }}
+                  className="mb-4 shadow-sm"
                   size="small"
                   styles={{
                     body: !isEnabled ? { display: "none" } : {},
@@ -271,23 +270,24 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
                     <Form.Item
                       name={[...fieldNameArray, "enabled"]}
                       valuePropName="checked"
-                      style={{ margin: 0 }}
+                      className="m-0"
                     >
                       <Switch
                         checkedChildren="启用"
                         unCheckedChildren="关闭"
                         size="small"
+                        onChange={onChange}
                       />
                     </Form.Item>
                   }
                 >
                   {isEnabled && item.params.length > 0 && (
-                    <>
-                      <Divider orientation="left" style={{ margin: "12px 0" }}>
+                    <div>
+                      <Divider orientation="left" className="my-3">
                         参数配置
                       </Divider>
                       {renderFormItems(item.params, `${fieldName}.params`)}
-                    </>
+                    </div>
                   )}
                 </Card>
               );
@@ -300,5 +300,5 @@ export const FormRenderer: React.FC<FormRenderProps> = ({
     });
   };
 
-  return <>{renderFormItems(items, prefix)}</>;
+  return <div className="space-y-4">{renderFormItems(items, prefix)}</div>;
 };
