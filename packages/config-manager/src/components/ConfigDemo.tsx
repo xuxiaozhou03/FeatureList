@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, Select, Alert, Descriptions, Badge } from "antd";
 import { loadVersionConfig } from "../utils/versionLoader";
-import { VersionConfig } from "@feature-list/define";
+import { VersionConfig, config as configSchema } from "@feature-list/define";
 
 const { Option } = Select;
 
@@ -23,12 +23,42 @@ export const ConfigDemo: React.FC = () => {
     { value: "client1", label: "客户版1" },
   ];
 
+  // 从config schema中获取中文名称的辅助函数
+  const getChineseName = (featureName: string, parentName?: string): string => {
+    const featuresConfig = configSchema.find(
+      (item: any) => item.name === "features"
+    );
+    if (!featuresConfig?.children) return featureName;
+
+    if (parentName) {
+      // 查找子功能的中文名称
+      const parentFeature = featuresConfig.children.find(
+        (item: any) => item.name === parentName
+      );
+      if (parentFeature?.children) {
+        const childFeature = parentFeature.children.find(
+          (item: any) => item.name === featureName
+        );
+        if (childFeature) return childFeature.label;
+      }
+    } else {
+      // 查找主功能的中文名称
+      const feature = featuresConfig.children.find(
+        (item: any) => item.name === featureName
+      );
+      if (feature) return feature.label;
+    }
+
+    return featureName;
+  };
+
   const loadConfig = async (version: string) => {
     setLoading(true);
     setError(null);
     try {
       const configData = await loadVersionConfig(version);
       if (configData) {
+        console.log(configData, configSchema);
         setConfig(configData);
       } else {
         setError(`无法加载版本 ${version} 的配置`);
@@ -44,13 +74,19 @@ export const ConfigDemo: React.FC = () => {
     loadConfig(selectedVersion);
   }, [selectedVersion]);
 
-  const renderFeatureStatus = (feature: any, featureName: string) => {
+  const renderFeatureStatus = (
+    feature: any,
+    featureName: string,
+    parentName?: string
+  ) => {
     if (!feature) return null;
 
     const isEnabled = feature.enabled;
     const hasParams = feature.params && Object.keys(feature.params).length > 0;
     const hasChildren =
       feature.children || (typeof feature === "object" && !feature.enabled);
+
+    const chineseName = getChineseName(featureName, parentName);
 
     return (
       <Card size="small" style={{ marginBottom: 8 }}>
@@ -61,7 +97,9 @@ export const ConfigDemo: React.FC = () => {
             justifyContent: "space-between",
           }}
         >
-          <span style={{ fontWeight: "bold" }}>{featureName}</span>
+          <span style={{ fontWeight: "bold" }}>
+            {chineseName}（{featureName}）
+          </span>
           <Badge
             status={isEnabled ? "success" : "default"}
             text={isEnabled ? "启用" : "禁用"}
@@ -90,7 +128,7 @@ export const ConfigDemo: React.FC = () => {
             {Object.entries(feature.children || {}).map(
               ([childName, childFeature]) => (
                 <div key={childName} style={{ marginLeft: 16, marginTop: 4 }}>
-                  {renderFeatureStatus(childFeature, childName)}
+                  {renderFeatureStatus(childFeature, childName, featureName)}
                 </div>
               )
             )}
