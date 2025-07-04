@@ -106,7 +106,11 @@ const DefinePage = () => {
           <div
             className={isPreviewExpanded ? "lg:col-span-1" : "lg:col-span-1"}
           >
-            <FeaturePreview jsonData={value || ""} />
+            <FeaturePreview
+              data={value}
+              isExpanded={isPreviewExpanded}
+              onExpandChange={setIsPreviewExpanded}
+            />
           </div>
         </div>
 
