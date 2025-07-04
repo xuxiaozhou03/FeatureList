@@ -1,7 +1,14 @@
 import React from "react";
 import { Layout, Menu } from "antd";
 import { Link, useLocation } from "react-router-dom";
-import { SettingOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  SettingOutlined,
+  EyeOutlined,
+  AppstoreOutlined,
+  CodeOutlined,
+  FileTextOutlined,
+  ControlOutlined,
+} from "@ant-design/icons";
 import { VersionInfo } from "../components/VersionInfo";
 
 const { Header, Content } = Layout;
@@ -21,37 +28,46 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     },
     {
       key: "/version",
-      icon: <SettingOutlined />,
-      label: <Link to="/version">预览版本配置</Link>,
+      icon: <CodeOutlined />,
+      label: <Link to="/version">Schema 生成器</Link>,
     },
     {
       key: "/versions",
-      icon: <SettingOutlined />,
-      label: <Link to="/versions">版本列表</Link>,
+      icon: <AppstoreOutlined />,
+      label: <Link to="/versions">版本管理</Link>,
     },
     {
       key: "/display",
       icon: <EyeOutlined />,
-      label: <Link to="/display">展示版本清单控制</Link>,
+      label: <Link to="/display">版本展示</Link>,
     },
     {
       key: "/display-control",
-      icon: <EyeOutlined />,
-      label: <Link to="/display-control">展示构建版本控制</Link>,
+      icon: <ControlOutlined />,
+      label: <Link to="/display-control">版本控制</Link>,
     },
   ];
 
   return (
     <Layout className="min-h-screen">
-      <Header className="flex items-center justify-between px-6">
+      <Header className="flex items-center justify-between px-6 bg-gradient-to-r from-blue-600 to-purple-700 shadow-lg">
         <div className="flex items-center">
-          <div className="text-white text-lg font-bold mr-6">配置管理器</div>
+          <div className="text-white text-xl font-bold mr-8 flex items-center gap-2">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+              <FileTextOutlined className="text-white" />
+            </div>
+            FeatureList
+          </div>
           <Menu
             theme="dark"
             mode="horizontal"
             selectedKeys={[location.pathname]}
             items={menuItems}
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 bg-transparent border-none"
+            style={{
+              backgroundColor: "transparent",
+              borderBottom: "none",
+            }}
           />
         </div>
 
@@ -60,7 +76,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </Header>
 
-      <Content className="p-4 bg-gray-100">{children}</Content>
+      <Content className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        {children}
+      </Content>
     </Layout>
   );
 };

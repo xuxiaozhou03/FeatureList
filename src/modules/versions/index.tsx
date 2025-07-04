@@ -9,17 +9,29 @@ import {
   Modal,
   Input,
   Form,
+  Typography,
+  Badge,
+  Tooltip,
+  Empty,
 } from "antd";
 import {
   DownloadOutlined,
   ReloadOutlined,
   PlusOutlined,
   DeleteOutlined,
+  EditOutlined,
+  CodeOutlined,
+  SettingOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import VersionForm from "./components/VersionForm";
 import { createVersionSchema } from "../version/utils/schemaConverter";
 import JsonEditor from "../version/components/JsonEditor";
 import { useFeatureSchema, useVersions, VersionItem } from "../hooks";
+import "./styles.css";
+
+const { Title, Paragraph, Text } = Typography;
 
 type EditMode = "form" | "json";
 
@@ -349,51 +361,96 @@ const VersionPage: React.FC = () => {
   const tabItems = (versionList || []).map((version) => ({
     key: version.id,
     label: (
-      <Space>
-        <span>{version.version}</span>
-        <span style={{ color: "#666", fontSize: "12px" }}>
-          ({version.name})
-        </span>
-      </Space>
+      <div className="flex items-center gap-2">
+        <Badge
+          color={version.name === "enterprise" ? "gold" : "blue"}
+          size="small"
+        />
+        <span>{version.name}</span>
+        <Text type="secondary" className="text-xs">
+          v{version.version}
+        </Text>
+      </div>
     ),
     children: (
-      <div>
-        <Card
-          title={`版本 ${version.version} - ${version.name}`}
-          extra={
-            <Space>
+      <div className="version-tab-content">
+        {/* 版本信息卡片 */}
+        <Card className="version-info-card mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-0 shadow-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <SettingOutlined className="text-white text-xl" />
+              </div>
+              <div>
+                <Title level={4} className="mb-1">
+                  {version.name} <Badge text={`v${version.version}`} />
+                </Title>
+                <Paragraph className="text-gray-600 mb-2">
+                  {version.description || "暂无描述"}
+                </Paragraph>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <CalendarOutlined />
+                    创建于: {new Date(version.createdAt).toLocaleDateString()}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <EditOutlined />
+                    更新于: {new Date(version.updatedAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Tooltip title="重置配置">
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={handleReset}
+                  size="small"
+                />
+              </Tooltip>
+              <Tooltip title="导出配置">
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={handleExport}
+                  size="small"
+                />
+              </Tooltip>
+              <Tooltip title="删除版本">
+                <Button
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteVersion(version.id)}
+                  size="small"
+                  danger
+                />
+              </Tooltip>
+            </div>
+          </div>
+        </Card>
+
+        {/* 编辑模式切换 */}
+        <Card className="mb-6 shadow-md border-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Text strong>编辑模式:</Text>
               <Radio.Group
                 value={editMode}
                 onChange={(e) => setEditMode(e.target.value)}
                 buttonStyle="solid"
+                size="small"
               >
-                <Radio.Button value="form">可视化表单</Radio.Button>
-                <Radio.Button value="json">JSON 编辑器</Radio.Button>
+                <Radio.Button value="form">
+                  <EditOutlined /> 表单模式
+                </Radio.Button>
+                <Radio.Button value="json">
+                  <CodeOutlined /> JSON 模式
+                </Radio.Button>
               </Radio.Group>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={handleReset}
-                type="default"
-              >
-                重置配置
-              </Button>
-              <Button
-                icon={<DownloadOutlined />}
-                onClick={handleExport}
-                type="primary"
-              >
-                导出配置
-              </Button>
-              <Button
-                icon={<DeleteOutlined />}
-                onClick={() => handleDeleteVersion(version.id)}
-                danger
-              >
-                删除版本
-              </Button>
-            </Space>
-          }
-        >
+            </div>
+          </div>
+        </Card>
+
+        {/* 编辑器内容 */}
+        <Card className="editor-card shadow-lg border-0 rounded-xl overflow-hidden">
           {editMode === "form" ? (
             <VersionForm
               featureSchema={parsedFeatureSchema}
@@ -403,7 +460,7 @@ const VersionPage: React.FC = () => {
             />
           ) : (
             <JsonEditor
-              title=""
+              title="版本配置 JSON"
               value={JSON.stringify(
                 {
                   version: version.version,
@@ -425,84 +482,123 @@ const VersionPage: React.FC = () => {
   }));
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <Space>
-          <Button
-            icon={<PlusOutlined />}
-            type="primary"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            新建版本
-          </Button>
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={handleExportAll}
-            disabled={!versionList || versionList.length === 0}
-          >
-            导出所有版本
-          </Button>
-        </Space>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* 页面标题 */}
+        <div className="mb-8">
+          <Title level={2} className="text-gray-800 mb-2">
+            版本管理
+          </Title>
+          <Paragraph className="text-gray-600 text-lg">
+            创建和管理不同的版本配置，支持表单编辑和 JSON 编辑两种模式
+          </Paragraph>
+        </div>
 
-      {versionList && versionList.length > 0 ? (
-        <Tabs
-          type="card"
-          hideAdd
-          activeKey={activeVersionId || undefined}
-          onChange={setActiveVersionId}
-          items={tabItems}
-        />
-      ) : (
-        <Card>
-          <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <p style={{ color: "#666" }}>
-              暂无版本，点击"新建版本"创建第一个版本
-            </p>
+        {/* 操作按钮 */}
+        <div className="mb-6">
+          <Space>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               onClick={() => setIsCreateModalOpen(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
             >
               新建版本
             </Button>
-          </div>
-        </Card>
-      )}
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExportAll}
+              disabled={!versionList || versionList.length === 0}
+              className="shadow-md hover:shadow-lg transition-all duration-300"
+            >
+              导出所有版本
+            </Button>
+          </Space>
+        </div>
 
-      <Modal
-        title="新建版本"
-        open={isCreateModalOpen}
-        onCancel={() => {
-          setIsCreateModalOpen(false);
-          createForm.resetFields();
-        }}
-        onOk={() => createForm.submit()}
-      >
-        <Form
-          form={createForm}
-          layout="vertical"
-          onFinish={handleCreateVersion}
+        {/* 版本列表 */}
+        {versionList && versionList.length > 0 ? (
+          <Card className="shadow-lg border-0 rounded-xl overflow-hidden backdrop-blur-sm bg-white/90">
+            <Tabs
+              type="card"
+              hideAdd
+              activeKey={activeVersionId || undefined}
+              onChange={setActiveVersionId}
+              items={tabItems}
+              className="versions-tabs"
+            />
+          </Card>
+        ) : (
+          <Card className="shadow-lg border-0 rounded-xl text-center py-16">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <div>
+                  <Text type="secondary" className="text-lg">
+                    暂无版本配置
+                  </Text>
+                  <br />
+                  <Text type="secondary">
+                    点击"新建版本"创建您的第一个版本配置
+                  </Text>
+                </div>
+              }
+            >
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                新建版本
+              </Button>
+            </Empty>
+          </Card>
+        )}
+
+        {/* 创建版本对话框 */}
+        <Modal
+          title={
+            <div className="flex items-center gap-2">
+              <PlusOutlined />
+              新建版本
+            </div>
+          }
+          open={isCreateModalOpen}
+          onCancel={() => {
+            setIsCreateModalOpen(false);
+            createForm.resetFields();
+          }}
+          onOk={() => createForm.submit()}
+          okText="创建"
+          cancelText="取消"
+          className="create-version-modal"
         >
-          <Form.Item
-            label="版本号"
-            name="version"
-            rules={[{ required: true, message: "请输入版本号" }]}
+          <Form
+            form={createForm}
+            layout="vertical"
+            onFinish={handleCreateVersion}
           >
-            <Input placeholder="例如：1.0.0" />
-          </Form.Item>
-          <Form.Item
-            label="版本名称"
-            name="name"
-            rules={[{ required: true, message: "请输入版本名称" }]}
-          >
-            <Input placeholder="例如：基础版本" />
-          </Form.Item>
-          <Form.Item label="版本描述" name="description">
-            <Input.TextArea rows={3} placeholder="版本描述（可选）" />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form.Item
+              label="版本号"
+              name="version"
+              rules={[{ required: true, message: "请输入版本号" }]}
+            >
+              <Input placeholder="例如：1.0.0" />
+            </Form.Item>
+            <Form.Item
+              label="版本名称"
+              name="name"
+              rules={[{ required: true, message: "请输入版本名称" }]}
+            >
+              <Input placeholder="例如：基础版本" />
+            </Form.Item>
+            <Form.Item label="版本描述" name="description">
+              <Input.TextArea rows={3} placeholder="版本描述（可选）" />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
     </div>
   );
 };

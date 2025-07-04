@@ -1,233 +1,180 @@
 import React from "react";
+import { Card, Typography, Space, Button, Tag, Badge } from "antd";
 import {
-  Card,
-  Tree,
-  Tag,
-  Descriptions,
-  Typography,
-  Space,
-  Collapse,
-} from "antd";
-import {
-  FolderOutlined,
-  FileTextOutlined,
+  ExpandOutlined,
+  CompressOutlined,
   SettingOutlined,
-  CheckCircleOutlined,
+  InfoCircleOutlined,
+  BranchesOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
+import "./FeaturePreview.css";
 
-const { Title, Text } = Typography;
-
-interface FeatureData {
-  name: string;
-  description?: string;
-  paramSchema?: Record<string, any>;
-  children?: Record<string, FeatureData>;
-}
+const { Title, Text, Paragraph } = Typography;
 
 interface FeaturePreviewProps {
-  jsonData: string;
+  data: any;
+  isExpanded: boolean;
+  onExpandChange: (expanded: boolean) => void;
 }
 
-const FeaturePreview: React.FC<FeaturePreviewProps> = ({ jsonData }) => {
-  // 解析JSON数据
-  const parseJsonData = (data: string): Record<string, FeatureData> | null => {
+const FeaturePreview: React.FC<FeaturePreviewProps> = ({
+  data,
+  isExpanded,
+  onExpandChange,
+}) => {
+  const parseFeatureData = (data: any) => {
+    if (!data || typeof data !== "object") return {};
+
     try {
-      return JSON.parse(data);
+      return typeof data === "string" ? JSON.parse(data) : data;
     } catch (error) {
-      return null;
+      console.error("解析功能数据失败:", error);
+      return {};
     }
   };
 
-  // 渲染参数配置
-  const renderParamConfig = (paramSchema: Record<string, any>) => {
-    if (!paramSchema || Object.keys(paramSchema).length === 0) {
-      return null;
-    }
+  const renderFeatureTree = (features: any, level = 0) => {
+    if (!features || typeof features !== "object") return null;
 
-    const items = Object.entries(paramSchema).map(
-      ([key, config]: [string, any]) => ({
-        key,
-        label: key,
-        children: (
-          <Space direction="vertical" size="small">
-            <div>
-              <Tag color="blue">{config.type || "string"}</Tag>
-              {config.required && <Tag color="red">必填</Tag>}
-            </div>
-            {config.description && (
-              <Text type="secondary">{config.description}</Text>
-            )}
-            {config.default !== undefined && (
-              <Text code>默认值: {JSON.stringify(config.default)}</Text>
-            )}
-            {config.enum && (
-              <div>
-                <Text strong>可选值: </Text>
-                <Space wrap>
-                  {config.enum.map((item: any, index: number) => (
-                    <Tag key={index} color="geekblue">
-                      {item}
-                      {config.enumDescriptions?.[index] && (
-                        <Text type="secondary" style={{ marginLeft: 4 }}>
-                          ({config.enumDescriptions[index]})
-                        </Text>
+    return Object.entries(features).map(([key, feature]: [string, any]) => {
+      const hasChildren =
+        feature.children && Object.keys(feature.children).length > 0;
+      const hasParams =
+        feature.params && Object.keys(feature.params).length > 0;
+
+      return (
+        <div key={key} className={`feature-item level-${level}`}>
+          <Card
+            size="small"
+            className={`mb-3 shadow-sm hover:shadow-md transition-all duration-200 ${
+              feature.enabled
+                ? "feature-enabled border-green-300"
+                : "feature-disabled border-gray-200"
+            }`}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge
+                    status={feature.enabled ? "success" : "default"}
+                    text={
+                      <Text
+                        strong
+                        className={
+                          feature.enabled ? "text-green-700" : "text-gray-500"
+                        }
+                      >
+                        {feature.name || key}
+                      </Text>
+                    }
+                  />
+                  {feature.enabled && <Tag color="success">已启用</Tag>}
+                </div>
+
+                {feature.description && (
+                  <Paragraph
+                    className="text-sm text-gray-600 mb-2"
+                    ellipsis={{ rows: 2, expandable: true }}
+                  >
+                    {feature.description}
+                  </Paragraph>
+                )}
+
+                {hasParams && (
+                  <div className="mb-2">
+                    <Space wrap>
+                      <Tag icon={<SettingOutlined />} color="blue">
+                        {Object.keys(feature.params).length} 个参数
+                      </Tag>
+                      {Object.entries(feature.params).map(
+                        ([paramKey, paramValue]) => (
+                          <Tag key={paramKey} className="text-xs">
+                            {paramKey}: {String(paramValue)}
+                          </Tag>
+                        )
                       )}
-                    </Tag>
-                  ))}
-                </Space>
+                    </Space>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {hasChildren && (
+                  <Badge
+                    count={Object.keys(feature.children).length}
+                    size="small"
+                  >
+                    <BranchesOutlined className="text-blue-500" />
+                  </Badge>
+                )}
+                {hasParams && <ApiOutlined className="text-green-500" />}
+              </div>
+            </div>
+
+            {hasChildren && (
+              <div className="mt-3 pl-4 border-l-2 border-gray-200">
+                {renderFeatureTree(feature.children, level + 1)}
               </div>
             )}
-            {(config.minimum !== undefined || config.maximum !== undefined) && (
-              <Text type="secondary">
-                范围: {config.minimum !== undefined ? config.minimum : "∞"} ~{" "}
-                {config.maximum !== undefined ? config.maximum : "∞"}
-              </Text>
-            )}
-          </Space>
-        ),
-      })
-    );
-
-    return (
-      <Collapse
-        size="small"
-        items={[
-          {
-            key: "1",
-            label: (
-              <Space>
-                <SettingOutlined />
-                参数配置 ({Object.keys(paramSchema).length}个)
-              </Space>
-            ),
-            children: <Descriptions column={1} items={items} />,
-          },
-        ]}
-      />
-    );
-  };
-
-  // 构建树形结构数据
-  const buildTreeData = (
-    data: Record<string, FeatureData> | FeatureData,
-    parentKey = ""
-  ): any[] => {
-    const result: any[] = [];
-
-    // 如果是 Record<string, FeatureData> 格式，遍历所有功能项
-    if (typeof data === "object" && !("name" in data)) {
-      Object.entries(data as Record<string, FeatureData>).forEach(
-        ([key, featureData]) => {
-          const nodeKey = parentKey ? `${parentKey}-${key}` : key;
-          const hasChildren =
-            featureData.children &&
-            Object.keys(featureData.children).length > 0;
-
-          result.push({
-            key: nodeKey,
-            title: (
-              <Space>
-                {hasChildren ? <FolderOutlined /> : <FileTextOutlined />}
-                <span>{featureData.name}</span>
-                {featureData.paramSchema &&
-                  Object.keys(featureData.paramSchema).length > 0 && (
-                    <Tag color="orange">
-                      {Object.keys(featureData.paramSchema).length}个参数
-                    </Tag>
-                  )}
-              </Space>
-            ),
-            children: hasChildren
-              ? buildTreeData(featureData.children!, nodeKey)
-              : undefined,
-            data: featureData,
-          });
-        }
-      );
-    }
-    // 如果是单个 FeatureData，处理其 children
-    else if ("children" in data && data.children) {
-      Object.entries(data.children).forEach(([key, childData]) => {
-        const nodeKey = parentKey ? `${parentKey}-${key}` : key;
-        const hasChildren =
-          childData.children && Object.keys(childData.children).length > 0;
-
-        result.push({
-          key: nodeKey,
-          title: (
-            <Space>
-              {hasChildren ? <FolderOutlined /> : <FileTextOutlined />}
-              <span>{childData.name}</span>
-              {childData.paramSchema &&
-                Object.keys(childData.paramSchema).length > 0 && (
-                  <Tag color="orange">
-                    {Object.keys(childData.paramSchema).length}个参数
-                  </Tag>
-                )}
-            </Space>
-          ),
-          children: hasChildren
-            ? buildTreeData(childData.children!, nodeKey)
-            : undefined,
-          data: childData,
-        });
-      });
-    }
-
-    return result;
-  };
-
-  const parsedData = parseJsonData(jsonData);
-
-  if (!parsedData) {
-    return (
-      <Card title="功能清单预览">
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <Text type="secondary">无法解析JSON数据，请检查格式是否正确</Text>
+          </Card>
         </div>
-      </Card>
-    );
-  }
+      );
+    });
+  };
+
+  const parsedData = parseFeatureData(data);
+  const featureCount = Object.keys(parsedData).length;
+  const enabledCount = Object.values(parsedData).filter(
+    (f: any) => f.enabled
+  ).length;
 
   return (
-    <Card title="功能清单预览">
-      <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-        <div style={{ marginBottom: 16 }}>
-          <Title level={4}>
-            <CheckCircleOutlined style={{ color: "#52c41a", marginRight: 8 }} />
-            功能清单
-          </Title>
-          <Text type="secondary">
-            共 {Object.keys(parsedData).length} 个功能模块
-          </Text>
-        </div>
-
-        <Tree
-          treeData={buildTreeData(parsedData)}
-          defaultExpandAll
-          showLine
-          titleRender={(nodeData) => {
-            const featureData = (nodeData as any).data;
-            return (
-              <div>
-                <div>{nodeData.title}</div>
-                {featureData.description && (
-                  <Text type="secondary" style={{ fontSize: "12px" }}>
-                    {featureData.description}
-                  </Text>
-                )}
-                {featureData.paramSchema &&
-                  Object.keys(featureData.paramSchema).length > 0 && (
-                    <div style={{ marginTop: 4 }}>
-                      {renderParamConfig(featureData.paramSchema)}
-                    </div>
-                  )}
+    <div className="feature-preview">
+      <Card
+        className="shadow-lg border-0 rounded-xl overflow-hidden"
+        title={
+          <div className="flex items-center justify-between">
+            <Space>
+              <InfoCircleOutlined className="text-blue-500" />
+              <Title level={4} className="mb-0">
+                功能预览
+              </Title>
+              <div className="flex items-center gap-2">
+                <Badge count={featureCount} color="blue" />
+                <Text type="secondary">个功能</Text>
+                <Badge count={enabledCount} color="green" />
+                <Text type="secondary">已启用</Text>
               </div>
-            );
-          }}
-        />
-      </div>
-    </Card>
+            </Space>
+            <Button
+              type="text"
+              icon={isExpanded ? <CompressOutlined /> : <ExpandOutlined />}
+              onClick={() => onExpandChange(!isExpanded)}
+              className="hover:bg-blue-50"
+            >
+              {isExpanded ? "收起" : "展开"}
+            </Button>
+          </div>
+        }
+        styles={{
+          body: {
+            padding: isExpanded ? "24px" : "16px",
+            maxHeight: isExpanded ? "none" : "400px",
+            overflowY: "auto",
+          },
+        }}
+      >
+        {featureCount > 0 ? (
+          <div className="space-y-4">{renderFeatureTree(parsedData)}</div>
+        ) : (
+          <div className="text-center py-8">
+            <InfoCircleOutlined className="text-4xl text-gray-300 mb-4" />
+            <Text type="secondary">暂无功能配置</Text>
+          </div>
+        )}
+      </Card>
+    </div>
   );
 };
 

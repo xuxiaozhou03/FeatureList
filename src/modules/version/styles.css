@@ -1,0 +1,36 @@
+/* Version Schema Generator Styles */
+.schema-tabs .ant-tabs-nav {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  padding: 0 24px;
+}
+
+.schema-tabs .ant-tabs-tab {
+  border: none !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+  padding: 16px 24px;
+  margin: 0;
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.schema-tabs .ant-tabs-tab:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.schema-tabs .ant-tabs-tab-active {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.schema-tabs .ant-tabs-ink-bar {
+  background: white !important;
+  height: 3px !important;
+}
+
+.schema-tabs .ant-tabs-content {
+  background: white;
+}

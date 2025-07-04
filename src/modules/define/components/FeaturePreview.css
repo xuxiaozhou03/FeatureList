@@ -1,0 +1,67 @@
+/* FeaturePreview Component Styles */
+.feature-preview {
+  width: 100%;
+}
+
+.feature-preview .feature-item {
+  transition: all 0.3s ease;
+}
+
+.feature-preview .feature-item.level-0 {
+  margin-left: 0;
+}
+
+.feature-preview .feature-item.level-1 {
+  margin-left: 16px;
+}
+
+.feature-preview .feature-item.level-2 {
+  margin-left: 32px;
+}
+
+.feature-preview .feature-item.level-3 {
+  margin-left: 48px;
+}
+
+.feature-preview .ant-card-small .ant-card-body {
+  padding: 16px;
+}
+
+.feature-preview .level-0 .ant-card {
+  border-left: 4px solid #1890ff;
+}
+
+.feature-preview .level-1 .ant-card {
+  border-left: 4px solid #52c41a;
+}
+
+.feature-preview .level-2 .ant-card {
+  border-left: 4px solid #faad14;
+}
+
+.feature-preview .level-3 .ant-card {
+  border-left: 4px solid #f5222d;
+}
+
+.feature-preview .ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-preview .ant-badge-status-success {
+  color: #52c41a;
+}
+
+.feature-preview .ant-badge-status-default {
+  color: #d9d9d9;
+}
+
+.feature-preview .feature-enabled {
+  background: linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%);
+  border-color: #b7eb8f;
+}
+
+.feature-preview .feature-disabled {
+  background: #fafafa;
+  border-color: #d9d9d9;
+}
