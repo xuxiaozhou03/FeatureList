@@ -1,8 +1,8 @@
-import enterprise from "../../../public/enterprise.json";
-import community from "../../../public/community.json";
+import enterprise from "../../auto-generate/enterprise.json";
+import community from "../../auto-generate/community.json";
 import { useLocalStorageState } from "ahooks";
 import schema from "./feature.schema.json";
-import VersionConfig from "../type";
+import VersionConfig from "../../auto-generate";
 import { useState } from "react";
 
 export interface VersionItem extends VersionConfig {

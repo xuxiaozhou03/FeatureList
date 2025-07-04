@@ -82,6 +82,56 @@ const VersionPage: React.FC = () => {
     }
   }, [featureSchema]);
 
+  // 根据 parsedFeatureSchema 生成完整的功能配置
+  const generateCompleteFeatures = (currentFeatures: any) => {
+    if (!parsedFeatureSchema || Object.keys(parsedFeatureSchema).length === 0) {
+      return currentFeatures;
+    }
+
+    const mergeFeatures = (
+      schemaFeatures: any,
+      currentFeatures: any = {}
+    ): any => {
+      const result: any = {};
+
+      Object.keys(schemaFeatures).forEach((key) => {
+        const schemaFeature = schemaFeatures[key];
+        const currentFeature = currentFeatures[key] || {};
+
+        if (schemaFeature && typeof schemaFeature === "object") {
+          result[key] = {
+            // 保持当前的启用状态，如果没有则使用 schema 中的默认值
+            enabled:
+              currentFeature.enabled !== undefined
+                ? currentFeature.enabled
+                : schemaFeature.enabled || false,
+
+            // 合并参数，优先使用当前配置，缺失的参数使用 schema 默认值
+            params: {
+              ...schemaFeature.params,
+              ...currentFeature.params,
+            },
+          };
+
+          // 处理子功能
+          if (
+            schemaFeature.children &&
+            typeof schemaFeature.children === "object"
+          ) {
+            result[key].children = mergeFeatures(
+              schemaFeature.children,
+              currentFeature.children
+            );
+          }
+        }
+      });
+
+      return result;
+    };
+
+    return mergeFeatures(parsedFeatureSchema, currentFeatures);
+  };
+
   // 生成默认的版本配置数据
   const defaultVersionConfig = useMemo(() => {
     return (
@@ -100,12 +150,17 @@ const VersionPage: React.FC = () => {
     name: string;
     description: string;
   }) => {
+    // 生成完整的默认功能配置
+    const completeDefaultFeatures = generateCompleteFeatures(
+      defaultVersionConfig.features || {}
+    );
+
     const newVersion: VersionItem = {
       id: Date.now().toString(),
       version: values.version,
       name: values.name,
       description: values.description,
-      features: defaultVersionConfig.features || {},
+      features: completeDefaultFeatures,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -184,11 +239,16 @@ const VersionPage: React.FC = () => {
   const handleReset = () => {
     if (!activeVersionId || !versionList) return;
 
+    // 生成完整的默认功能配置
+    const completeDefaultFeatures = generateCompleteFeatures(
+      defaultVersionConfig.features || {}
+    );
+
     const newList = versionList.map((v) => {
       if (v.id === activeVersionId) {
         return {
           ...v,
-          features: defaultVersionConfig.features || {},
+          features: completeDefaultFeatures,
           updatedAt: new Date().toISOString(),
         };
       }
@@ -207,7 +267,21 @@ const VersionPage: React.FC = () => {
     }
 
     try {
-      const blob = new Blob([JSON.stringify(activeVersion, null, 2)], {
+      // 生成完整的功能配置
+      const completeFeatures = generateCompleteFeatures(activeVersion.features);
+
+      // 创建完整的导出数据
+      const exportData = {
+        id: activeVersion.id,
+        version: activeVersion.version,
+        name: activeVersion.name,
+        description: activeVersion.description,
+        features: completeFeatures,
+        createdAt: activeVersion.createdAt,
+        updatedAt: activeVersion.updatedAt,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
@@ -234,7 +308,18 @@ const VersionPage: React.FC = () => {
     }
 
     try {
-      const blob = new Blob([JSON.stringify(versionList, null, 2)], {
+      // 为每个版本生成完整的功能配置
+      const completeVersionList = versionList.map((version) => ({
+        id: version.id,
+        version: version.version,
+        name: version.name,
+        description: version.description,
+        features: generateCompleteFeatures(version.features),
+        createdAt: version.createdAt,
+        updatedAt: version.updatedAt,
+      }));
+
+      const blob = new Blob([JSON.stringify(completeVersionList, null, 2)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
