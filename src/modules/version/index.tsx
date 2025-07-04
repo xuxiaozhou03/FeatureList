@@ -1,17 +1,14 @@
-import React, { useMemo, useState } from "react";
-import { useFeatureSchema } from "../define";
-import { useLocalStorageState } from "ahooks";
-import { Card, Tabs, Button, Space, message, Radio } from "antd";
-import { DownloadOutlined, ReloadOutlined } from "@ant-design/icons";
-import { createVersionSchema } from "./utils/schemaConverter";
-import VersionForm from "./components/VersionForm";
+import React, { useMemo } from "react";
+import { Tabs } from "antd";
+import {
+  createVersionSchema,
+  convertSchemaToTypeScript,
+} from "./utils/schemaConverter";
 import JsonEditor from "./components/JsonEditor";
-
-type EditMode = "form" | "json";
+import { useFeatureSchema } from "../hooks";
 
 const VersionPage: React.FC = () => {
   const [featureSchema] = useFeatureSchema();
-  const [editMode, setEditMode] = useState<EditMode>("form");
 
   // 根据 featureSchema 生成完整的 versionSchema
   const versionSchema = useMemo(() => {
@@ -43,152 +40,42 @@ const VersionPage: React.FC = () => {
     }
   }, [featureSchema]);
 
-  // 解析功能清单
-  const parsedFeatureSchema = useMemo(() => {
-    if (!featureSchema) return {};
+  // 生成 TypeScript 类型定义
+  const typeScriptTypes = useMemo(() => {
+    if (!versionSchema) return "";
     try {
-      return typeof featureSchema === "string"
-        ? JSON.parse(featureSchema)
-        : featureSchema;
+      return convertSchemaToTypeScript(versionSchema);
     } catch (error) {
-      console.error("解析功能清单失败:", error);
-      return {};
+      console.error("生成 TypeScript 类型失败:", error);
+      return "// 生成 TypeScript 类型失败，请检查功能清单格式";
     }
-  }, [featureSchema]);
-
-  // 生成默认的版本配置数据
-  const defaultVersionConfig = useMemo(() => {
-    return (
-      (versionSchema as any).example || {
-        version: "1.0.0",
-        name: "新版本",
-        description: "版本描述",
-        features: {},
-      }
-    );
   }, [versionSchema]);
-
-  // 使用 localStorage 存储版本配置
-  const [versionConfig, setVersionConfig] = useLocalStorageState(
-    "version-config",
-    JSON.stringify(defaultVersionConfig, null, 2)
-  );
-
-  // 解析版本配置对象
-  const versionConfigObject = useMemo(() => {
-    try {
-      return JSON.parse(versionConfig || "{}");
-    } catch (error) {
-      console.error("解析版本配置失败:", error);
-      return defaultVersionConfig;
-    }
-  }, [versionConfig, defaultVersionConfig]);
-
-  // 处理表单数据变化
-  const handleFormChange = (formData: any) => {
-    const jsonString = JSON.stringify(formData, null, 2);
-    setVersionConfig(jsonString);
-  };
-
-  // 处理 JSON 编辑器数据变化
-  const handleJsonChange = (jsonString: string) => {
-    setVersionConfig(jsonString);
-  };
-
-  // 重置配置
-  const handleReset = () => {
-    const newConfig = JSON.stringify(defaultVersionConfig, null, 2);
-    setVersionConfig(newConfig);
-    message.success("已重置为默认配置");
-  };
-
-  // 导出配置
-  const handleExport = () => {
-    try {
-      const configData = JSON.parse(versionConfig || "{}");
-      const blob = new Blob([JSON.stringify(configData, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `version-config-${configData.version || "latest"}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      message.success("配置已导出");
-    } catch (error) {
-      message.error("导出失败，请检查 JSON 格式");
-    }
-  };
 
   return (
     <div>
       <Tabs
-        defaultActiveKey="config"
+        defaultActiveKey="schema"
         items={[
           {
-            key: "config",
-            label: "版本配置",
-            children: (
-              <div>
-                <Card
-                  title="版本配置编辑器"
-                  size="small"
-                  extra={
-                    <Space>
-                      <Radio.Group
-                        value={editMode}
-                        onChange={(e) => setEditMode(e.target.value)}
-                        buttonStyle="solid"
-                      >
-                        <Radio.Button value="form">可视化表单</Radio.Button>
-                        <Radio.Button value="json">JSON 编辑器</Radio.Button>
-                      </Radio.Group>
-                      <Button
-                        icon={<ReloadOutlined />}
-                        onClick={handleReset}
-                        type="default"
-                      >
-                        重置配置
-                      </Button>
-                      <Button
-                        icon={<DownloadOutlined />}
-                        onClick={handleExport}
-                        type="primary"
-                      >
-                        导出配置
-                      </Button>
-                    </Space>
-                  }
-                >
-                  {editMode === "form" ? (
-                    <VersionForm
-                      featureSchema={parsedFeatureSchema}
-                      value={versionConfigObject}
-                      onChange={handleFormChange}
-                    />
-                  ) : (
-                    <JsonEditor
-                      title=""
-                      value={versionConfig || ""}
-                      onChange={handleJsonChange}
-                      schema={versionSchema}
-                      height="600px"
-                    />
-                  )}
-                </Card>
-              </div>
-            ),
-          },
-          {
             key: "schema",
-            label: "动态生成的 Schema",
+            label: "根据功能清单生成的 Schema",
             children: (
               <JsonEditor
                 title="基于功能清单动态生成的版本配置 Schema"
                 value={JSON.stringify(versionSchema, null, 2)}
+                readOnly
+                height="600px"
+              />
+            ),
+          },
+          {
+            key: "ts",
+            label: "根据功能清单生成的 TypeScript 类型",
+            children: (
+              <JsonEditor
+                title="基于功能清单动态生成的 TypeScript 类型定义"
+                value={typeScriptTypes}
+                language="typescript"
                 readOnly
                 height="600px"
               />

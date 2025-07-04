@@ -22,12 +22,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     {
       key: "/version",
       icon: <SettingOutlined />,
-      label: <Link to="/version">版本</Link>,
+      label: <Link to="/version">预览版本配置</Link>,
+    },
+    {
+      key: "/versions",
+      icon: <SettingOutlined />,
+      label: <Link to="/versions">版本列表</Link>,
     },
     {
       key: "/display",
       icon: <EyeOutlined />,
-      label: <Link to="/display">功能展示</Link>,
+      label: <Link to="/display">展示版本清单控制</Link>,
+    },
+    {
+      key: "/display-control",
+      icon: <EyeOutlined />,
+      label: <Link to="/display-control">展示构建版本控制</Link>,
     },
   ];
 

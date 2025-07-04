@@ -1,27 +1,36 @@
 {
-  "name": "社区版",
+  "id": "1751617587573",
+  "version": "1.0.0",
+  "name": "community",
   "description": "社区版",
   "features": {
-    "dashbord": {
-      "enabled": true
+    "dashboard": {
+      "enabled": true,
+      "params": {
+        "layout": "grid",
+        "refreshInterval": 30
+      }
     },
     "projects": {
       "enabled": true,
-      "pipelines": {
-        "enabled": true,
-        "params": {
-          "max": 1
+      "params": {
+        "maxProjects": 100,
+        "visibility": ["public", "private"],
+        "templates": true
+      },
+      "children": {
+        "pipelines": {
+          "enabled": false,
+          "params": {
+            "maxPipelines": 10,
+            "concurrentBuilds": 3,
+            "buildTimeout": 3600,
+            "supportedRunners": ["docker"]
+          }
         }
       }
-    },
-    "issues": {
-      "enabled": true
-    },
-    "code": {
-      "enabled": true,
-      "params": {
-        "force_pull": false
-      }
     }
-  }
+  },
+  "createdAt": "2025-07-04T08:26:27.573Z",
+  "updatedAt": "2025-07-04T08:41:43.726Z"
 }

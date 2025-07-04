@@ -9,6 +9,7 @@ interface JsonEditorProps {
   schema?: any;
   readOnly?: boolean;
   height?: string;
+  language?: string;
 }
 
 const JsonEditor: React.FC<JsonEditorProps> = ({
@@ -18,12 +19,13 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
   schema,
   readOnly = false,
   height = "500px",
+  language = "json",
 }) => {
   return (
     <Card title={title} size="small">
       <MonacoEditor
         height={height}
-        language="json"
+        language={language}
         theme="vs-dark"
         value={value}
         onChange={(newValue) => {
@@ -38,7 +40,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
           automaticLayout: true,
         }}
         beforeMount={(instance) => {
-          if (schema) {
+          if (schema && language === "json") {
             instance.languages.json.jsonDefaults.setDiagnosticsOptions({
               validate: true,
               schemas: [

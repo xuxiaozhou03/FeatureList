@@ -14,7 +14,7 @@ import {
   message,
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { FeatureConfig } from "../utils/schemaConverter";
+import { FeatureConfig } from "../../version/utils/schemaConverter";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -23,6 +23,7 @@ interface VersionFormProps {
   featureSchema: Record<string, FeatureConfig>;
   value?: any;
   onChange?: (value: any) => void;
+  isEditing?: boolean; // 新增：是否为编辑模式
 }
 
 interface FeatureFormProps {
@@ -37,16 +38,36 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
   value,
   onChange,
 }) => {
-  const [form] = Form.useForm();
+  const [localValue, setLocalValue] = useState(
+    value || {
+      enabled: true,
+      params: {},
+      children: {},
+    }
+  );
 
   useEffect(() => {
     if (value) {
-      form.setFieldsValue(value);
+      setLocalValue(value);
     }
-  }, [value, form]);
+  }, [value]);
 
-  const handleFormChange = (_: any, allValues: any) => {
-    onChange?.(allValues);
+  const handleValueChange = (newValue: any) => {
+    setLocalValue(newValue);
+    onChange?.(newValue);
+  };
+
+  const handleEnabledChange = (checked: boolean) => {
+    const newValue = { ...localValue, enabled: checked };
+    handleValueChange(newValue);
+  };
+
+  const handleParamChange = (paramName: string, paramValue: any) => {
+    const newValue = {
+      ...localValue,
+      params: { ...localValue.params, [paramName]: paramValue },
+    };
+    handleValueChange(newValue);
   };
 
   const renderParamInput = (paramName: string, paramConfig: any) => {
@@ -89,12 +110,20 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
       </Space>
     );
 
+    const currentValue = localValue.params?.[paramName];
+
     switch (type) {
       case "string":
         if (enumValues) {
           return (
-            <Form.Item name={["params", paramName]} label={label}>
-              <Select placeholder={`请选择${paramName}`}>
+            <div key={paramName} style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 8 }}>{label}</div>
+              <Select
+                placeholder={`请选择${paramName}`}
+                value={currentValue}
+                onChange={(value) => handleParamChange(paramName, value)}
+                style={{ width: "100%" }}
+              >
                 {enumValues.map((value: string, index: number) => (
                   <Option key={value} value={value}>
                     <Space>
@@ -108,46 +137,57 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
                   </Option>
                 ))}
               </Select>
-            </Form.Item>
+            </div>
           );
         }
         return (
-          <Form.Item name={["params", paramName]} label={label}>
-            <Input placeholder={`请输入${paramName}`} />
-          </Form.Item>
+          <div key={paramName} style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8 }}>{label}</div>
+            <Input
+              placeholder={`请输入${paramName}`}
+              value={currentValue}
+              onChange={(e) => handleParamChange(paramName, e.target.value)}
+            />
+          </div>
         );
 
       case "number":
         return (
-          <Form.Item name={["params", paramName]} label={label}>
+          <div key={paramName} style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8 }}>{label}</div>
             <InputNumber
               style={{ width: "100%" }}
               min={minimum}
               max={maximum}
               placeholder={`请输入${paramName}`}
+              value={currentValue}
+              onChange={(value) => handleParamChange(paramName, value)}
             />
-          </Form.Item>
+          </div>
         );
 
       case "boolean":
         return (
-          <Form.Item
-            name={["params", paramName]}
-            label={label}
-            valuePropName="checked"
-          >
-            <Switch />
-          </Form.Item>
+          <div key={paramName} style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8 }}>{label}</div>
+            <Switch
+              checked={currentValue}
+              onChange={(checked) => handleParamChange(paramName, checked)}
+            />
+          </div>
         );
 
       case "array":
         if (paramConfig.items?.enum) {
           return (
-            <Form.Item name={["params", paramName]} label={label}>
+            <div key={paramName} style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 8 }}>{label}</div>
               <Select
                 mode="multiple"
                 placeholder={`请选择${paramName}`}
                 style={{ width: "100%" }}
+                value={currentValue}
+                onChange={(value) => handleParamChange(paramName, value)}
               >
                 {paramConfig.items.enum.map((value: string, index: number) => (
                   <Option key={value} value={value}>
@@ -162,27 +202,35 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
                   </Option>
                 ))}
               </Select>
-            </Form.Item>
+            </div>
           );
         }
         return (
-          <Form.Item name={["params", paramName]} label={label}>
+          <div key={paramName} style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8 }}>{label}</div>
             <Select
               mode="tags"
               style={{ width: "100%" }}
               placeholder={`请输入${paramName}`}
               tokenSeparators={[","]}
+              value={currentValue}
+              onChange={(value) => handleParamChange(paramName, value)}
             />
-          </Form.Item>
+          </div>
         );
 
       case "object":
         return (
-          <Card size="small" title={label} style={{ marginBottom: 16 }}>
+          <Card
+            key={paramName}
+            size="small"
+            title={label}
+            style={{ marginBottom: 16 }}
+          >
             {paramConfig.properties &&
               Object.entries(paramConfig.properties).map(
                 ([propName, propConfig]: [string, any]) => (
-                  <div key={propName}>
+                  <div key={`${paramName}.${propName}`}>
                     {renderParamInput(`${paramName}.${propName}`, propConfig)}
                   </div>
                 )
@@ -192,9 +240,14 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
 
       default:
         return (
-          <Form.Item name={["params", paramName]} label={label}>
-            <Input placeholder={`请输入${paramName}`} />
-          </Form.Item>
+          <div key={paramName} style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 8 }}>{label}</div>
+            <Input
+              placeholder={`请输入${paramName}`}
+              value={currentValue}
+              onChange={(e) => handleParamChange(paramName, e.target.value)}
+            />
+          </div>
         );
     }
   };
@@ -214,55 +267,45 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
       size="small"
       style={{ marginBottom: 16 }}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onValuesChange={handleFormChange}
-        initialValues={{
-          enabled: true,
-          params: {},
-          children: {},
-        }}
-      >
-        <Form.Item name="enabled" label="启用功能" valuePropName="checked">
-          <Switch />
-        </Form.Item>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 8 }}>启用功能</div>
+        <Switch checked={localValue.enabled} onChange={handleEnabledChange} />
+      </div>
 
-        {feature.paramSchema && Object.keys(feature.paramSchema).length > 0 && (
-          <Card title="参数配置" size="small" style={{ marginBottom: 16 }}>
-            {Object.entries(feature.paramSchema).map(
-              ([paramName, paramConfig]: [string, any]) =>
-                renderParamInput(paramName, paramConfig)
+      {feature.paramSchema && Object.keys(feature.paramSchema).length > 0 && (
+        <Card title="参数配置" size="small" style={{ marginBottom: 16 }}>
+          {Object.entries(feature.paramSchema).map(
+            ([paramName, paramConfig]: [string, any]) =>
+              renderParamInput(paramName, paramConfig)
+          )}
+        </Card>
+      )}
+
+      {feature.children && Object.keys(feature.children).length > 0 && (
+        <Card title="子功能配置" size="small">
+          <Collapse
+            items={Object.entries(feature.children).map(
+              ([childName, childFeature]: [string, any]) => ({
+                key: childName,
+                label: childFeature.name || childName,
+                children: (
+                  <FeatureForm
+                    feature={childFeature}
+                    featureName={childName}
+                    value={localValue?.children?.[childName]}
+                    onChange={(childValue) => {
+                      const newValue = { ...localValue };
+                      if (!newValue.children) newValue.children = {};
+                      newValue.children[childName] = childValue;
+                      handleValueChange(newValue);
+                    }}
+                  />
+                ),
+              })
             )}
-          </Card>
-        )}
-
-        {feature.children && Object.keys(feature.children).length > 0 && (
-          <Card title="子功能配置" size="small">
-            <Collapse
-              items={Object.entries(feature.children).map(
-                ([childName, childFeature]: [string, any]) => ({
-                  key: childName,
-                  label: childFeature.name || childName,
-                  children: (
-                    <FeatureForm
-                      feature={childFeature}
-                      featureName={childName}
-                      value={value?.children?.[childName]}
-                      onChange={(childValue) => {
-                        const newValue = { ...value };
-                        if (!newValue.children) newValue.children = {};
-                        newValue.children[childName] = childValue;
-                        onChange?.(newValue);
-                      }}
-                    />
-                  ),
-                })
-              )}
-            />
-          </Card>
-        )}
-      </Form>
+          />
+        </Card>
+      )}
     </Card>
   );
 };
@@ -271,6 +314,7 @@ const VersionForm: React.FC<VersionFormProps> = ({
   featureSchema,
   value,
   onChange,
+  isEditing = false, // 新增：默认为非编辑模式
 }) => {
   const [form] = Form.useForm();
   const [featureValues, setFeatureValues] = useState<Record<string, any>>({});
@@ -341,7 +385,11 @@ const VersionForm: React.FC<VersionFormProps> = ({
               { pattern: /^\d+\.\d+\.\d+$/, message: "版本号格式应为 x.y.z" },
             ]}
           >
-            <Input placeholder="例如：1.0.0" />
+            <Input
+              placeholder="例如：1.0.0"
+              readOnly={isEditing}
+              style={isEditing ? { backgroundColor: "#f5f5f5" } : {}}
+            />
           </Form.Item>
 
           <Form.Item
@@ -349,7 +397,11 @@ const VersionForm: React.FC<VersionFormProps> = ({
             label="版本名称"
             rules={[{ required: true, message: "请输入版本名称" }]}
           >
-            <Input placeholder="请输入版本名称" />
+            <Input
+              placeholder="请输入版本名称"
+              readOnly={isEditing}
+              style={isEditing ? { backgroundColor: "#f5f5f5" } : {}}
+            />
           </Form.Item>
 
           <Form.Item

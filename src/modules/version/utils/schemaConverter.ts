@@ -279,3 +279,182 @@ export const createVersionSchema = (
     throw error;
   }
 };
+
+/**
+ * 将 JSON Schema 转换为 TypeScript 类型定义
+ */
+export const convertSchemaToTypeScript = (schema: any): string => {
+  const interfaces = new Set<string>();
+
+  const capitalize = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
+  const generateType = (
+    obj: any,
+    typeName: string = "",
+    depth: number = 0
+  ): string => {
+    const indent = "  ".repeat(depth);
+
+    // 处理对象类型
+    if (obj.type === "object" && obj.properties) {
+      const properties = Object.entries(obj.properties)
+        .map(([key, value]: [string, any]) => {
+          const isOptional = obj.required && !obj.required.includes(key);
+          const optional = isOptional ? "?" : "";
+          const description = value.description
+            ? `${indent}  /** ${value.description} */\n`
+            : "";
+
+          // 递归处理嵌套类型
+          let propType = generateType(value, "", depth + 1);
+
+          // 处理复杂的嵌套对象，为其生成独立的接口
+          if (
+            value.type === "object" &&
+            value.properties &&
+            Object.keys(value.properties).length > 3
+          ) {
+            const nestedInterfaceName = `${typeName}${capitalize(key)}`;
+            const nestedInterface = generateType(value, nestedInterfaceName, 0);
+            interfaces.add(nestedInterface);
+            propType = nestedInterfaceName;
+          }
+
+          return `${description}${indent}  ${key}${optional}: ${propType};`;
+        })
+        .join("\n");
+
+      if (typeName) {
+        return `interface ${typeName} {\n${properties}\n${indent}}`;
+      } else {
+        return `{\n${properties}\n${indent}}`;
+      }
+    }
+
+    // 处理数组类型
+    if (obj.type === "array") {
+      const itemType = obj.items ? generateType(obj.items, "", depth) : "any";
+      return `Array<${itemType}>`;
+    }
+
+    // 处理枚举类型
+    if (obj.enum) {
+      if (obj.enum.every((v: any) => typeof v === "string")) {
+        return obj.enum.map((value: string) => `"${value}"`).join(" | ");
+      } else {
+        return obj.enum.map((value: any) => JSON.stringify(value)).join(" | ");
+      }
+    }
+
+    // 处理基本类型
+    switch (obj.type) {
+      case "string":
+        if (obj.pattern) {
+          return `string // Pattern: ${obj.pattern}`;
+        }
+        return "string";
+      case "number":
+      case "integer":
+        return "number";
+      case "boolean":
+        return "boolean";
+      case "null":
+        return "null";
+      default:
+        return "any";
+    }
+  };
+
+  // 生成特性相关的接口
+  const generateFeatureInterfaces = (
+    obj: any,
+    prefix: string = ""
+  ): string[] => {
+    const result: string[] = [];
+
+    if (obj.type === "object" && obj.properties && obj.properties.features) {
+      const featuresObj = obj.properties.features;
+      if (featuresObj.properties) {
+        Object.entries(featuresObj.properties).forEach(
+          ([featureName, feature]: [string, any]) => {
+            const interfaceName = `${prefix}${capitalize(featureName)}Feature`;
+            const interfaceCode = generateType(feature, interfaceName, 0);
+            result.push(interfaceCode);
+
+            // 递归处理子功能
+            if (feature.properties && feature.properties.children) {
+              const childrenObj = feature.properties.children;
+              if (childrenObj.properties) {
+                Object.entries(childrenObj.properties).forEach(
+                  ([childName, child]: [string, any]) => {
+                    const childInterfaceName = `${prefix}${capitalize(
+                      featureName
+                    )}${capitalize(childName)}Feature`;
+                    const childInterfaceCode = generateType(
+                      child,
+                      childInterfaceName,
+                      0
+                    );
+                    result.push(childInterfaceCode);
+                  }
+                );
+              }
+            }
+          }
+        );
+      }
+    }
+
+    return result;
+  };
+
+  // 生成主接口
+  const mainInterface = generateType(schema, "VersionConfig", 0);
+
+  // 生成特性接口
+  const featureInterfaces = generateFeatureInterfaces(schema);
+
+  // 生成通用类型
+  const commonTypes = `
+/** 功能启用状态 */
+type FeatureEnabled = boolean;
+
+/** 功能参数配置 */
+interface FeatureParams {
+  [key: string]: any;
+}
+
+/** 基础功能配置 */
+interface BaseFeature {
+  /** 是否启用此功能 */
+  enabled: FeatureEnabled;
+  /** 功能参数配置 */
+  params?: FeatureParams;
+}`;
+
+  // 组合所有类型定义
+  const allTypes = [
+    `// 基于功能清单动态生成的 TypeScript 类型定义`,
+    `// 生成时间: ${new Date().toLocaleString()}`,
+    `// Schema Title: ${schema.title || "Version Configuration"}`,
+    `// Schema Description: ${
+      schema.description || "Auto-generated type definitions"
+    }`,
+    "",
+    commonTypes,
+    "",
+    ...Array.from(interfaces),
+    ...featureInterfaces,
+    "",
+    mainInterface,
+    "",
+    "// 导出主要类型",
+    "export type { VersionConfig, BaseFeature, FeatureParams, FeatureEnabled };",
+    "",
+    "// 默认导出",
+    "export default VersionConfig;",
+  ];
+
+  return allTypes.join("\n");
+};
