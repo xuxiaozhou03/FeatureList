@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "项目功能清单配置",
+  "description": "定义项目功能清单的通用结构，支持动态配置任意功能及其参数",
+  "type": "object",
+  "definitions": {
+    "ParamConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "boolean", "array", "object"],
+          "description": "参数类型"
+        },
+        "description": {
+          "type": "string",
+          "description": "参数描述"
+        },
+        "default": {
+          "description": "默认值"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "是否必填",
+          "default": false
+        },
+        "enum": {
+          "type": "array",
+          "description": "枚举值选项（适用于string类型）"
+        },
+        "enumDescriptions": {
+          "type": "array",
+          "description": "枚举值选项解释"
+        },
+        "minimum": {
+          "type": "number",
+          "description": "最小值（适用于number类型）"
+        },
+        "maximum": {
+          "type": "number",
+          "description": "最大值（适用于number类型）"
+        },
+        "minLength": {
+          "type": "number",
+          "description": "最小长度（适用于string/array类型）"
+        },
+        "maxLength": {
+          "type": "number",
+          "description": "最大长度（适用于string/array类型）"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "正则表达式模式（适用于string类型）"
+        },
+        "items": {
+          "$ref": "#/definitions/ParamConfig",
+          "description": "数组项配置（适用于array类型）"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ParamConfig"
+          },
+          "description": "对象属性配置（适用于object类型）"
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "Feature": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "功能显示名称"
+        },
+        "description": {
+          "type": "string",
+          "description": "功能描述"
+        },
+        "paramSchema": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ParamConfig"
+          },
+          "description": "参数配置规则"
+        },
+        "children": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Feature"
+          },
+          "description": "子功能配置（可选）"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": {
+    "$ref": "#/definitions/Feature"
+  },
+  "example": {
+    "dashboard": {
+      "name": "仪表板",
+      "description": "项目数据展示和监控",
+      "paramSchema": {
+        "layout": {
+          "type": "string",
+          "enum": ["grid", "list", "card"],
+          "enumDescriptions": [
+            "网格布局，以卡片网格形式展示",
+            "列表布局，以列表形式展示",
+            "卡片布局，以大卡片形式展示"
+          ],
+          "description": "布局方式",
+          "default": "grid",
+          "required": true
+        },
+        "refreshInterval": {
+          "type": "number",
+          "minimum": 5,
+          "maximum": 3600,
+          "description": "刷新间隔（秒）",
+          "default": 30
+        },
+        "widgets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "启用的组件列表"
+        }
+      }
+    },
+    "projects": {
+      "name": "项目管理",
+      "description": "项目创建、配置和管理",
+      "paramSchema": {
+        "maxProjects": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "最大项目数量",
+          "default": 100,
+          "required": true
+        },
+        "visibility": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["public", "private", "internal"],
+            "enumDescriptions": [
+              "公开项目，所有人可见",
+              "私有项目，仅团队成员可见",
+              "内部项目，仅组织内部可见"
+            ]
+          },
+          "description": "支持的可见性级别",
+          "default": ["public", "private"]
+        },
+        "templates": {
+          "type": "boolean",
+          "description": "是否支持项目模板",
+          "default": true
+        }
+      },
+      "children": {
+        "pipelines": {
+          "name": "CI/CD流水线",
+          "description": "持续集成和部署",
+          "paramSchema": {
+            "maxPipelines": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "最大流水线数量",
+              "default": 10
+            },
+            "concurrentBuilds": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "并发构建数量",
+              "default": 3
+            },
+            "buildTimeout": {
+              "type": "number",
+              "minimum": 300,
+              "maximum": 7200,
+              "description": "构建超时时间（秒）",
+              "default": 3600
+            },
+            "supportedRunners": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["docker", "shell", "kubernetes"],
+                "enumDescriptions": [
+                  "Docker容器运行器，支持容器化构建",
+                  "Shell运行器，直接在主机上执行命令",
+                  "Kubernetes运行器，在K8s集群中运行任务"
+                ]
+              },
+              "description": "支持的运行器类型",
+              "default": ["docker"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

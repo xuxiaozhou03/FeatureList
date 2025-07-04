@@ -1,0 +1,220 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "版本配置",
+  "description": "完整的版本配置结构，包含版本信息和具体的功能配置",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "版本标识符",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "版本名称",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "版本描述",
+      "minLength": 1
+    },
+    "features": {
+      "type": "object",
+      "description": "功能配置对象",
+      "properties": {
+        "dashboard": {
+          "type": "object",
+          "description": "仪表板功能配置",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "是否启用仪表板功能"
+            },
+            "params": {
+              "type": "object",
+              "description": "仪表板参数配置",
+              "properties": {
+                "layout": {
+                  "type": "string",
+                  "enum": ["grid", "list", "card"],
+                  "enumDescriptions": [
+                    "网格布局，以卡片网格形式展示",
+                    "列表布局，以列表形式展示",
+                    "卡片布局，以大卡片形式展示"
+                  ],
+                  "description": "布局方式",
+                  "default": "grid"
+                },
+                "refreshInterval": {
+                  "type": "number",
+                  "minimum": 5,
+                  "maximum": 3600,
+                  "description": "刷新间隔（秒）",
+                  "default": 30
+                },
+                "widgets": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "启用的组件列表",
+                  "default": []
+                }
+              },
+              "required": ["layout"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["enabled", "params"],
+          "additionalProperties": false
+        },
+        "projects": {
+          "type": "object",
+          "description": "项目管理功能配置",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "是否启用项目管理功能"
+            },
+            "params": {
+              "type": "object",
+              "description": "项目管理参数配置",
+              "properties": {
+                "maxProjects": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 1000,
+                  "description": "最大项目数量",
+                  "default": 100
+                },
+                "visibility": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["public", "private", "internal"],
+                    "enumDescriptions": [
+                      "公开项目，所有人可见",
+                      "私有项目，仅团队成员可见",
+                      "内部项目，仅组织内部可见"
+                    ]
+                  },
+                  "description": "支持的可见性级别",
+                  "default": ["public", "private"]
+                },
+                "templates": {
+                  "type": "boolean",
+                  "description": "是否支持项目模板",
+                  "default": true
+                }
+              },
+              "required": ["maxProjects"],
+              "additionalProperties": false
+            },
+            "children": {
+              "type": "object",
+              "description": "项目子功能配置",
+              "properties": {
+                "pipelines": {
+                  "type": "object",
+                  "description": "CI/CD流水线功能配置",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "是否启用流水线功能"
+                    },
+                    "params": {
+                      "type": "object",
+                      "description": "流水线参数配置",
+                      "properties": {
+                        "maxPipelines": {
+                          "type": "number",
+                          "minimum": 1,
+                          "maximum": 100,
+                          "description": "最大流水线数量",
+                          "default": 10
+                        },
+                        "concurrentBuilds": {
+                          "type": "number",
+                          "minimum": 1,
+                          "maximum": 10,
+                          "description": "并发构建数量",
+                          "default": 3
+                        },
+                        "buildTimeout": {
+                          "type": "number",
+                          "minimum": 300,
+                          "maximum": 7200,
+                          "description": "构建超时时间（秒）",
+                          "default": 3600
+                        },
+                        "supportedRunners": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": ["docker", "shell", "kubernetes"],
+                            "enumDescriptions": [
+                              "Docker容器运行器，支持容器化构建",
+                              "Shell运行器，直接在主机上执行命令",
+                              "Kubernetes运行器，在K8s集群中运行任务"
+                            ]
+                          },
+                          "description": "支持的运行器类型",
+                          "default": ["docker"]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["enabled", "params"],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["enabled", "params"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["dashboard", "projects"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["version", "name", "description", "features"],
+  "additionalProperties": false,
+  "example": {
+    "version": "1.0.0",
+    "name": "基础版本",
+    "description": "包含基本功能的版本配置",
+    "features": {
+      "dashboard": {
+        "enabled": true,
+        "params": {
+          "layout": "grid",
+          "refreshInterval": 30,
+          "widgets": ["metrics", "activity"]
+        }
+      },
+      "projects": {
+        "enabled": true,
+        "params": {
+          "maxProjects": 100,
+          "visibility": ["public", "private"],
+          "templates": true
+        },
+        "children": {
+          "pipelines": {
+            "enabled": true,
+            "params": {
+              "maxPipelines": 10,
+              "concurrentBuilds": 3,
+              "buildTimeout": 3600,
+              "supportedRunners": ["docker", "shell"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

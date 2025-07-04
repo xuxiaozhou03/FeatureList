@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "name": "企业版",
+  "description": "包含完整功能的企业级版本配置",
+  "features": {
+    "dashboard": {
+      "enabled": true,
+      "params": {
+        "layout": "grid",
+        "refreshInterval": 60,
+        "widgets": ["metrics", "charts", "activity", "notifications"]
+      }
+    },
+    "projects": {
+      "enabled": true,
+      "params": {
+        "maxProjects": 500,
+        "visibility": ["public", "private", "internal"],
+        "templates": true
+      },
+      "children": {
+        "pipelines": {
+          "enabled": true,
+          "params": {
+            "maxPipelines": 50,
+            "concurrentBuilds": 5,
+            "buildTimeout": 7200,
+            "supportedRunners": ["docker", "shell", "kubernetes"]
+          }
+        },
+        "repositories": {
+          "enabled": true,
+          "params": {
+            "maxRepos": 200,
+            "branchProtection": true,
+            "webhooks": ["push", "pull_request", "release", "issues"]
+          }
+        }
+      }
+    },
+    "analytics": {
+      "enabled": true,
+      "params": {
+        "dataRetention": 365,
+        "reportTypes": ["daily", "weekly", "monthly", "quarterly"],
+        "exportFormats": ["pdf", "excel", "csv", "json"]
+      }
+    }
+  }
+}

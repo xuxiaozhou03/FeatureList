@@ -1,0 +1,201 @@
+{
+  "dashboard": {
+    "name": "仪表板",
+    "description": "项目数据展示和监控中心",
+    "paramSchema": {
+      "theme": {
+        "type": "string",
+        "enum": ["light", "dark", "auto"],
+        "enumDescriptions": [
+          "浅色主题，适合白天使用",
+          "深色主题，适合夜间使用",
+          "自动主题，根据系统设置自动切换"
+        ],
+        "description": "界面主题设置",
+        "default": "auto",
+        "required": true
+      },
+      "refreshInterval": {
+        "type": "number",
+        "minimum": 5,
+        "maximum": 300,
+        "description": "数据刷新间隔（秒）",
+        "default": 30
+      },
+      "enableNotifications": {
+        "type": "boolean",
+        "description": "是否启用通知提醒",
+        "default": true
+      },
+      "widgets": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["metrics", "charts", "activity", "notifications", "weather"],
+          "enumDescriptions": [
+            "数据指标面板",
+            "图表展示面板",
+            "活动动态面板",
+            "通知消息面板",
+            "天气信息面板"
+          ]
+        },
+        "description": "启用的组件面板",
+        "default": ["metrics", "charts"]
+      }
+    }
+  },
+  "userManagement": {
+    "name": "用户管理",
+    "description": "用户账户和权限管理系统",
+    "paramSchema": {
+      "maxUsers": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 10000,
+        "description": "最大用户数量",
+        "default": 100,
+        "required": true
+      },
+      "passwordPolicy": {
+        "type": "object",
+        "properties": {
+          "minLength": {
+            "type": "number",
+            "minimum": 6,
+            "maximum": 32,
+            "description": "密码最小长度",
+            "default": 8
+          },
+          "requireSpecialChar": {
+            "type": "boolean",
+            "description": "是否需要特殊字符",
+            "default": true
+          },
+          "complexity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "enumDescriptions": [
+              "低复杂度：仅需字母和数字",
+              "中等复杂度：需要大小写字母和数字",
+              "高复杂度：需要大小写字母、数字和特殊字符"
+            ],
+            "description": "密码复杂度要求",
+            "default": "medium"
+          }
+        },
+        "description": "密码安全策略配置"
+      },
+      "roles": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["admin", "editor", "viewer", "guest"],
+          "enumDescriptions": [
+            "管理员 - 拥有所有权限",
+            "编辑者 - 可以创建和修改内容",
+            "查看者 - 只能查看内容",
+            "访客 - 有限的访问权限"
+          ]
+        },
+        "description": "可用的用户角色",
+        "default": ["admin", "editor", "viewer"]
+      }
+    },
+    "children": {
+      "authentication": {
+        "name": "身份验证",
+        "description": "用户身份验证和登录管理",
+        "paramSchema": {
+          "ssoEnabled": {
+            "type": "boolean",
+            "description": "是否启用单点登录",
+            "default": false
+          },
+          "twoFactorAuth": {
+            "type": "boolean",
+            "description": "是否启用双因素认证",
+            "default": false
+          },
+          "sessionTimeout": {
+            "type": "number",
+            "minimum": 5,
+            "maximum": 1440,
+            "description": "会话超时时间（分钟）",
+            "default": 60
+          },
+          "loginMethods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["password", "oauth", "ldap", "saml"],
+              "enumDescriptions": [
+                "用户名密码登录",
+                "OAuth 社交登录",
+                "LDAP 域账户登录",
+                "SAML 企业登录"
+              ]
+            },
+            "description": "支持的登录方式",
+            "default": ["password"]
+          }
+        }
+      },
+      "permissions": {
+        "name": "权限管理",
+        "description": "用户权限和访问控制",
+        "paramSchema": {
+          "granularity": {
+            "type": "string",
+            "enum": ["basic", "advanced", "custom"],
+            "enumDescriptions": [
+              "基础权限：简单的读写权限",
+              "高级权限：详细的功能权限",
+              "自定义权限：完全可配置权限"
+            ],
+            "description": "权限粒度级别",
+            "default": "basic"
+          },
+          "inheritanceEnabled": {
+            "type": "boolean",
+            "description": "是否启用权限继承",
+            "default": true
+          }
+        }
+      }
+    }
+  },
+  "apiManagement": {
+    "name": "API 管理",
+    "description": "API 接口管理和监控",
+    "paramSchema": {
+      "rateLimit": {
+        "type": "number",
+        "minimum": 10,
+        "maximum": 10000,
+        "description": "API 调用频率限制（次/分钟）",
+        "default": 1000
+      },
+      "enableLogging": {
+        "type": "boolean",
+        "description": "是否启用 API 日志记录",
+        "default": true
+      },
+      "supportedVersions": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["v1", "v2", "v3", "beta"],
+          "enumDescriptions": [
+            "版本 1.0 - 稳定版本",
+            "版本 2.0 - 增强版本",
+            "版本 3.0 - 最新版本",
+            "测试版本 - 实验性功能"
+          ]
+        },
+        "description": "支持的 API 版本",
+        "default": ["v2", "v3"]
+      }
+    }
+  }
+}
