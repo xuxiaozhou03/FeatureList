@@ -2,7 +2,7 @@ import { useState } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import FeaturePreview from "./components/FeaturePreview";
 import { useFeatureSchema } from "../hooks";
-import schema from "../hooks/feature.schema.json";
+import { FEATURE_SCHEMA } from "./constant";
 
 const DefinePage = () => {
   const [value, setValue] = useFeatureSchema();
@@ -91,7 +91,7 @@ const DefinePage = () => {
                       schemas: [
                         {
                           uri: "feature-schema.json",
-                          schema,
+                          schema: FEATURE_SCHEMA,
                           fileMatch: ["*"],
                         },
                       ],

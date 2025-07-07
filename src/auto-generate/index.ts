@@ -1,5 +1,5 @@
 // 基于功能清单动态生成的 TypeScript 类型定义
-// 生成时间: 2025/7/4 16:55:09
+// 生成时间: 2025/7/7 16:19:58
 // Schema Title: 版本配置
 // Schema Description: 完整的版本配置结构，包含版本信息和具体的功能配置
 
@@ -19,59 +19,28 @@ interface BaseFeature {
   params?: FeatureParams;
 }
 
-interface ProjectsPipelinesFeatureParams {
-  /** 最大流水线数量 */
-  maxPipelines: number;
-  /** 并发构建数量 */
-  concurrentBuilds: number;
-  /** 构建超时时间（秒） */
-  buildTimeout: number;
-  /** 支持的运行器类型 */
-  supportedRunners: Array<"docker" | "shell" | "kubernetes">;
-}
-interface DashboardFeature {
+export interface DashboardFeature {
   /** 是否启用此功能 */
   enabled: boolean;
   /** 功能参数配置 */
   params: {
-    /** 布局方式 */
     layout: "grid" | "list" | "card";
-    /** 刷新间隔（秒） */
     refreshInterval?: number;
-    /** 启用的组件列表 */
     widgets?: Array<string>;
   };
 }
-interface ProjectsFeature {
+export interface ProjectsFeature {
   /** 是否启用此功能 */
   enabled: boolean;
   /** 功能参数配置 */
   params: {
-    /** 最大项目数量 */
     maxProjects: number;
-    /** 支持的可见性级别 */
     visibility?: Array<"public" | "private" | "internal">;
-    /** 是否支持项目模板 */
     templates?: boolean;
   };
-  /** 子功能配置 */
-  children?: {
-    pipelines: {
-      /** 是否启用此功能 */
-      enabled: boolean;
-      /** 功能参数配置 */
-      params: ProjectsPipelinesFeatureParams;
-    };
-  };
-}
-interface ProjectsPipelinesFeature {
-  /** 是否启用此功能 */
-  enabled: boolean;
-  /** 功能参数配置 */
-  params: ProjectsPipelinesFeatureParams;
 }
 
-interface VersionConfig {
+export interface VersionConfig {
   /** 版本标识符 */
   version: string; // Pattern: ^\d+\.\d+\.\d+$;
   /** 版本名称 */
@@ -85,11 +54,8 @@ interface VersionConfig {
       enabled: boolean;
       /** 功能参数配置 */
       params: {
-        /** 布局方式 */
         layout: "grid" | "list" | "card";
-        /** 刷新间隔（秒） */
         refreshInterval?: number;
-        /** 启用的组件列表 */
         widgets?: Array<string>;
       };
     };
@@ -98,34 +64,16 @@ interface VersionConfig {
       enabled: boolean;
       /** 功能参数配置 */
       params: {
-        /** 最大项目数量 */
         maxProjects: number;
-        /** 支持的可见性级别 */
         visibility?: Array<"public" | "private" | "internal">;
-        /** 是否支持项目模板 */
         templates?: boolean;
-      };
-      /** 子功能配置 */
-      children?: {
-        pipelines: {
-          /** 是否启用此功能 */
-          enabled: boolean;
-          /** 功能参数配置 */
-          params: ProjectsPipelinesFeatureParams;
-        };
       };
     };
   };
 }
 
 // 导出主要类型
-export type {
-  VersionConfig,
-  BaseFeature,
-  FeatureParams,
-  FeatureEnabled,
-  ProjectsPipelinesFeatureParams,
-};
+export type { BaseFeature, FeatureParams, FeatureEnabled };
 
 // 默认导出
 export default VersionConfig;

@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import { AppLayout } from "./components/AppLayout";
 import DefinePage from "./modules/define";
-import VersionPage from "./modules/version";
+import SchemaPage from "./modules/schema";
 import VersionsPage from "./modules/versions";
 import DisplayPage from "./modules/display";
 import DisplayControlPage from "./modules/display-control";
@@ -20,7 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/define" replace />} />
           <Route path="/define" element={<DefinePage />} />
-          <Route path="/version" element={<VersionPage />} />
+          <Route path="/schema" element={<SchemaPage />} />
           <Route path="/versions" element={<VersionsPage />} />
           <Route path="/display" element={<DisplayPage />} />
           <Route path="/display-control" element={<DisplayControlPage />} />

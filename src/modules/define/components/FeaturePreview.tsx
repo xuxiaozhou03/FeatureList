@@ -1,11 +1,10 @@
 import React from "react";
-import { Card, Typography, Space, Button, Empty, Alert } from "antd";
+import { Card, Typography, Space, Button, Empty, Alert, Tree, Tag } from "antd";
+import type { TreeDataNode } from "antd";
 import {
   ExpandOutlined,
   CompressOutlined,
   InfoCircleOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
   FolderOutlined,
   FileOutlined,
 } from "@ant-design/icons";
@@ -33,141 +32,105 @@ const FeaturePreview: React.FC<FeaturePreviewProps> = ({
     }
   };
 
-  const renderFeatureHierarchy = (
-    features: any,
-    level = 0,
-    parentPath = ""
-  ) => {
-    if (!features || typeof features !== "object") return null;
+  const buildTreeData = (features: any, parentKey = ""): TreeDataNode[] => {
+    if (!features || typeof features !== "object") return [];
 
-    return Object.entries(features).map(([key, feature]: [string, any]) => {
-      const hasChildren =
-        feature.children && Object.keys(feature.children).length > 0;
-      const hasParams =
-        feature.params && Object.keys(feature.params).length > 0;
-      const currentPath = parentPath ? `${parentPath}.${key}` : key;
+    return Object.entries(features).map(
+      ([key, feature]: [string, any]): TreeDataNode => {
+        const nodeKey = parentKey ? `${parentKey}-${key}` : key;
+        const isLeaf = !hasSubFeatures(feature);
+        const paramCount = feature.paramSchema
+          ? Object.keys(feature.paramSchema).length
+          : 0;
 
-      return (
-        <div key={key} className={`feature-hierarchy-item level-${level}`}>
-          <div className="feature-main-node">
-            {/* 主要信息一行显示 */}
-            <div
-              className="flex items-center gap-1 text-xs"
-              style={{ marginLeft: `${level * 12}px` }}
-            >
-              {hasChildren ? (
-                <FolderOutlined className="text-blue-500" />
-              ) : (
-                <FileOutlined className="text-gray-500" />
-              )}
-
-              <Text
-                strong
-                className={feature.enabled ? "text-green-700" : "text-gray-500"}
-              >
-                {feature.name || key}
-              </Text>
-
-              <Text
-                type="secondary"
-                className="font-mono bg-gray-100 px-1 rounded"
-              >
-                {currentPath}
-              </Text>
-
-              {feature.enabled ? (
-                <CheckCircleOutlined className="text-green-500" />
-              ) : (
-                <ExclamationCircleOutlined className="text-gray-400" />
-              )}
-            </div>
-
-            {/* 描述 (如果有且较短) */}
-            {feature.description && feature.description.length <= 40 && (
-              <div
-                className="text-xs text-gray-500 mt-1"
-                style={{ marginLeft: `${level * 12 + 16}px` }}
-              >
-                {feature.description}
-              </div>
+        const title = (
+          <Space size="small">
+            {isLeaf ? (
+              <FileOutlined className="text-gray-500" />
+            ) : (
+              <FolderOutlined className="text-blue-500" />
             )}
-
-            {/* 参数架构 (仅显示前2个) */}
-            {feature.paramSchema && (
-              <div
-                className="text-xs mt-1"
-                style={{ marginLeft: `${level * 12 + 16}px` }}
-              >
-                <Text className="text-orange-600">架构:</Text>
-                {Object.entries(feature.paramSchema)
-                  .slice(0, 2)
-                  .map(([key, value]: [string, any], index) => (
-                    <span key={key} className="ml-1">
-                      {index > 0 && ", "}
-                      <Text className="text-orange-600">{key}</Text>
-                      <Text className="text-gray-600">
-                        :
-                        {typeof value === "object" && value !== null
-                          ? value.type || "obj"
-                          : String(value).substring(0, 8)}
-                      </Text>
-                    </span>
-                  ))}
-                {Object.keys(feature.paramSchema).length > 2 && (
-                  <Text className="text-gray-400 ml-1">
-                    +{Object.keys(feature.paramSchema).length - 2}
-                  </Text>
-                )}
-              </div>
+            <span className="font-medium">{feature.name || key}</span>
+            {paramCount > 0 && <Tag color="orange">{paramCount}个参数</Tag>}
+            {feature.description && (
+              <span className="text-gray-500 text-xs">
+                {feature.description.length > 30
+                  ? `${feature.description.substring(0, 30)}...`
+                  : feature.description}
+              </span>
             )}
+          </Space>
+        );
 
-            {/* 参数配置 (仅显示前2个) */}
-            {hasParams && (
-              <div
-                className="text-xs mt-1"
-                style={{ marginLeft: `${level * 12 + 16}px` }}
-              >
-                <Text className="text-blue-600">参数:</Text>
-                {Object.entries(feature.params)
-                  .slice(0, 2)
-                  .map(([key, value], index) => (
-                    <span key={key} className="ml-1">
-                      {index > 0 && ", "}
-                      <Text className="text-blue-600">{key}</Text>
-                      <Text className="text-gray-600">
-                        :
-                        {typeof value === "object"
-                          ? "obj"
-                          : String(value).substring(0, 8)}
-                      </Text>
-                    </span>
-                  ))}
-                {Object.keys(feature.params).length > 2 && (
-                  <Text className="text-gray-400 ml-1">
-                    +{Object.keys(feature.params).length - 2}
-                  </Text>
-                )}
-              </div>
-            )}
+        // 构建参数列表作为子节点
+        const paramNodes: TreeDataNode[] = [];
+        if (
+          feature.paramSchema &&
+          Object.keys(feature.paramSchema).length > 0
+        ) {
+          Object.entries(feature.paramSchema).forEach(
+            ([paramKey, paramConfig]: [string, any]) => {
+              const paramName = paramConfig.name || paramKey;
+              const paramTitle = (
+                <Space size="small">
+                  <span className="text-blue-600 text-sm">
+                    {paramName}({paramKey})
+                  </span>
+                  <Tag color="blue">{paramConfig.type || "unknown"}</Tag>
+                </Space>
+              );
 
-            {/* 子功能 */}
-            {hasChildren && (
-              <div className="mt-1">
-                {renderFeatureHierarchy(
-                  feature.children,
-                  level + 1,
-                  currentPath
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      );
+              paramNodes.push({
+                key: `${nodeKey}-param-${paramKey}`,
+                title: paramTitle,
+                isLeaf: true,
+                selectable: false,
+              });
+            }
+          );
+        }
+
+        const children: TreeDataNode[] = [
+          ...paramNodes,
+          ...buildTreeData(getSubFeatures(feature), nodeKey),
+        ];
+
+        return {
+          key: nodeKey,
+          title,
+          children: children.length > 0 ? children : undefined,
+          isLeaf,
+        };
+      }
+    );
+  };
+
+  const hasSubFeatures = (feature: any) => {
+    if (!feature || typeof feature !== "object") return false;
+
+    // 检查除了 name、description、paramSchema 之外是否还有其他属性
+    const keys = Object.keys(feature);
+    return keys.some(
+      (key) => !["name", "description", "paramSchema"].includes(key)
+    );
+  };
+
+  const getSubFeatures = (feature: any) => {
+    if (!feature || typeof feature !== "object") return {};
+
+    // 提取除了 name、description、paramSchema 之外的所有属性作为子功能
+    const subFeatures: any = {};
+    Object.keys(feature).forEach((key) => {
+      if (!["name", "description", "paramSchema"].includes(key)) {
+        subFeatures[key] = feature[key];
+      }
     });
+    return subFeatures;
   };
 
   const parsedData = parseFeatureData(data);
   const hasData = Object.keys(parsedData).length > 0;
+  const treeData = hasData ? buildTreeData(parsedData) : [];
 
   return (
     <div className="feature-preview">
@@ -204,14 +167,14 @@ const FeaturePreview: React.FC<FeaturePreviewProps> = ({
         {!hasData && (
           <Alert
             message="功能清单定义阶段"
-            description="紧凑展示功能层级结构、属性和参数配置"
+            description="树形展示功能层级结构和参数数量"
             type="info"
             showIcon
             className="mb-2"
           />
         )}
 
-        {/* 功能列表 */}
+        {/* 功能树 */}
         {!hasData ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -229,9 +192,13 @@ const FeaturePreview: React.FC<FeaturePreviewProps> = ({
             }
           />
         ) : (
-          <div className="feature-hierarchy-container">
-            {renderFeatureHierarchy(parsedData)}
-          </div>
+          <Tree
+            showLine
+            showIcon
+            defaultExpandAll
+            treeData={treeData}
+            className="feature-tree"
+          />
         )}
 
         {/* JSON 解析错误提示 */}

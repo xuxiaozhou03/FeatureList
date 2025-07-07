@@ -27,9 +27,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       label: <Link to="/define">功能清单</Link>,
     },
     {
-      key: "/version",
+      key: "/schema",
       icon: <CodeOutlined />,
-      label: <Link to="/version">Schema 生成器</Link>,
+      label: <Link to="/schema">Schema 生成器</Link>,
     },
     {
       key: "/versions",

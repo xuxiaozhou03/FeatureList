@@ -1,52 +1,104 @@
 /* Version Management Styles */
-.versions-tabs .ant-tabs-nav {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  margin: 0;
-  padding: 0 24px;
-  border-bottom: none;
+.version-management {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
 }
 
-.versions-tabs .ant-tabs-tab {
-  border: none !important;
-  background: transparent !important;
-  color: rgba(255, 255, 255, 0.8) !important;
-  font-weight: 500;
-  padding: 16px 20px;
-  margin: 0 4px;
-  border-radius: 8px 8px 0 0;
-  transition: all 0.3s ease;
-}
-
-.versions-tabs .ant-tabs-tab:hover {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
-.versions-tabs .ant-tabs-tab-active {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.15) !important;
-}
-
-.versions-tabs .ant-tabs-ink-bar {
-  background: white !important;
-  height: 3px !important;
-}
-
-.versions-tabs .ant-tabs-content {
+.version-list-panel {
   background: white;
-  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: fit-content;
 }
 
-.version-tab-content {
-  max-width: 100%;
+.version-detail-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 600px;
 }
 
-.version-info-card .ant-card-body {
-  padding: 24px;
+.version-item {
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: white;
 }
 
-.editor-card .ant-card-body {
-  padding: 0;
+.version-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.version-item.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.version-info-header {
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.edit-mode-section {
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* 版本卡片样式 */
+.version-card {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: white;
+}
+
+.version-card:hover {
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.version-card.active {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25);
+}
+
+/* 文本截断样式 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 编辑模式单选按钮样式 */
+.edit-mode-radio .ant-radio-button-wrapper {
+  height: 44px;
+  line-height: 42px;
+  border-color: #d1d5db;
+  font-weight: 500;
+}
+
+.edit-mode-radio .ant-radio-button-wrapper:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.edit-mode-radio .ant-radio-button-wrapper-checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.edit-mode-radio .ant-radio-button-wrapper-checked:hover {
+  background: #2563eb;
+  border-color: #2563eb;
 }
 
 .create-version-modal .ant-modal-header {

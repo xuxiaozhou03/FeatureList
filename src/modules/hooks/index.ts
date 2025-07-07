@@ -1,9 +1,9 @@
 import enterprise from "../../auto-generate/enterprise.json";
 import community from "../../auto-generate/community.json";
 import { useLocalStorageState } from "ahooks";
-import schema from "./feature.schema.json";
 import VersionConfig from "../../auto-generate";
 import { useState } from "react";
+import { FEATURE_SCHEMA_EXAMPLE } from "../define/constant";
 
 export interface VersionItem extends VersionConfig {
   id: string;
@@ -20,7 +20,7 @@ export const useVersions = () => {
 export const useFeatureSchema = () => {
   return useLocalStorageState(
     "feature-schema",
-    JSON.stringify(schema.example, null, 2)
+    JSON.stringify(FEATURE_SCHEMA_EXAMPLE, null, 2)
   );
 };
 

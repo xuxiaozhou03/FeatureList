@@ -6,7 +6,7 @@ export interface FeatureConfig {
   name: string;
   description?: string;
   paramSchema?: Record<string, any>;
-  children?: Record<string, FeatureConfig>;
+  [key: string]: string | Record<string, any> | FeatureConfig | undefined;
 }
 
 export interface VersionSchema {
@@ -130,23 +130,6 @@ export const convertFeatureToVersionFormat = (feature: FeatureConfig): any => {
     versionFeature.required.push("params");
   }
 
-  // 处理子功能
-  if (feature.children && Object.keys(feature.children).length > 0) {
-    versionFeature.properties.children = {
-      type: "object",
-      description: "子功能配置",
-      properties: {},
-      additionalProperties: false,
-    };
-
-    Object.entries(feature.children).forEach(
-      ([childName, childFeature]: [string, any]) => {
-        versionFeature.properties.children.properties[childName] =
-          convertFeatureToVersionFormat(childFeature);
-      }
-    );
-  }
-
   return versionFeature;
 };
 
@@ -158,49 +141,43 @@ export const generateExampleData = (
 ): any => {
   const exampleFeatures: any = {};
 
-  Object.entries(featureSchema).forEach(([featureName, feature]) => {
-    exampleFeatures[featureName] = {
+  // 递归函数来扁平化处理功能配置
+  const processFeature = (feature: FeatureConfig, featureName: string, prefix: string = '') => {
+    const fullName = prefix ? `${prefix}.${featureName}` : featureName;
+    
+    exampleFeatures[fullName] = {
       enabled: true,
     };
 
     if (feature.paramSchema && Object.keys(feature.paramSchema).length > 0) {
-      exampleFeatures[featureName].params = {};
+      exampleFeatures[fullName].params = {};
       Object.entries(feature.paramSchema).forEach(
         ([paramName, paramConfig]: [string, any]) => {
           if (paramConfig.default !== undefined) {
-            exampleFeatures[featureName].params[paramName] =
-              paramConfig.default;
+            exampleFeatures[fullName].params[paramName] = paramConfig.default;
           }
         }
       );
     }
 
-    // 处理子功能示例
-    if (feature.children) {
-      exampleFeatures[featureName].children = {};
-      Object.entries(feature.children).forEach(
-        ([childName, childFeature]: [string, any]) => {
-          exampleFeatures[featureName].children[childName] = {
-            enabled: true,
-          };
-          if (
-            childFeature.paramSchema &&
-            Object.keys(childFeature.paramSchema).length > 0
-          ) {
-            exampleFeatures[featureName].children[childName].params = {};
-            Object.entries(childFeature.paramSchema).forEach(
-              ([paramName, paramConfig]: [string, any]) => {
-                if (paramConfig.default !== undefined) {
-                  exampleFeatures[featureName].children[childName].params[
-                    paramName
-                  ] = paramConfig.default;
-                }
-              }
-            );
-          }
-        }
-      );
-    }
+    // 处理子功能，将其扁平化为同级功能
+    const childFeatures = Object.entries(feature).filter(
+      ([key]) => !["name", "description", "paramSchema"].includes(key)
+    );
+
+    childFeatures.forEach(([childName, childFeature]) => {
+      if (
+        childFeature &&
+        typeof childFeature === "object" &&
+        "name" in childFeature
+      ) {
+        processFeature(childFeature as FeatureConfig, childName, fullName);
+      }
+    });
+  };
+
+  Object.entries(featureSchema).forEach(([featureName, feature]) => {
+    processFeature(feature, featureName);
   });
 
   return exampleFeatures;
@@ -254,10 +231,32 @@ export const createVersionSchema = (
     const features: any = {};
     const requiredFeatures: string[] = [];
 
+    // 递归函数来扁平化处理功能配置
+    const processFeature = (feature: FeatureConfig, featureName: string, prefix: string = '') => {
+      const fullName = prefix ? `${prefix}.${featureName}` : featureName;
+      
+      features[fullName] = convertFeatureToVersionFormat(feature);
+      requiredFeatures.push(fullName);
+
+      // 处理子功能，将其扁平化为同级功能
+      const childFeatures = Object.entries(feature).filter(
+        ([key]) => !["name", "description", "paramSchema"].includes(key)
+      );
+
+      childFeatures.forEach(([childName, childFeature]) => {
+        if (
+          childFeature &&
+          typeof childFeature === "object" &&
+          "name" in childFeature
+        ) {
+          processFeature(childFeature as FeatureConfig, childName, fullName);
+        }
+      });
+    };
+
     Object.entries(parsedFeatureSchema).forEach(
       ([featureName, feature]: [string, any]) => {
-        features[featureName] = convertFeatureToVersionFormat(feature);
-        requiredFeatures.push(featureName);
+        processFeature(feature, featureName);
       }
     );
 
@@ -326,7 +325,7 @@ export const convertSchemaToTypeScript = (schema: any): string => {
         .join("\n");
 
       if (typeName) {
-        return `interface ${typeName} {\n${properties}\n${indent}}`;
+        return `export interface ${typeName} {\n${properties}\n${indent}}`;
       } else {
         return `{\n${properties}\n${indent}}`;
       }
@@ -381,26 +380,6 @@ export const convertSchemaToTypeScript = (schema: any): string => {
             const interfaceName = `${prefix}${capitalize(featureName)}Feature`;
             const interfaceCode = generateType(feature, interfaceName, 0);
             result.push(interfaceCode);
-
-            // 递归处理子功能
-            if (feature.properties && feature.properties.children) {
-              const childrenObj = feature.properties.children;
-              if (childrenObj.properties) {
-                Object.entries(childrenObj.properties).forEach(
-                  ([childName, child]: [string, any]) => {
-                    const childInterfaceName = `${prefix}${capitalize(
-                      featureName
-                    )}${capitalize(childName)}Feature`;
-                    const childInterfaceCode = generateType(
-                      child,
-                      childInterfaceName,
-                      0
-                    );
-                    result.push(childInterfaceCode);
-                  }
-                );
-              }
-            }
           }
         );
       }
@@ -450,7 +429,7 @@ interface BaseFeature {
     mainInterface,
     "",
     "// 导出主要类型",
-    "export type { VersionConfig, BaseFeature, FeatureParams, FeatureEnabled };",
+    "export type { BaseFeature, FeatureParams, FeatureEnabled };",
     "",
     "// 默认导出",
     "export default VersionConfig;",

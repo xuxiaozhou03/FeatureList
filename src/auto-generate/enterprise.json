@@ -18,15 +18,13 @@
         "visibility": ["public", "private"],
         "templates": false
       },
-      "children": {
-        "pipelines": {
-          "enabled": true,
-          "params": {
-            "maxPipelines": 10,
-            "concurrentBuilds": 3,
-            "buildTimeout": 3600,
-            "supportedRunners": ["docker"]
-          }
+      "pipelines": {
+        "enabled": true,
+        "params": {
+          "maxPipelines": 10,
+          "concurrentBuilds": 3,
+          "buildTimeout": 3600,
+          "supportedRunners": ["docker"]
         }
       }
     }

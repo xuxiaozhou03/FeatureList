@@ -14,7 +14,7 @@ import {
   message,
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { FeatureConfig } from "../../version/utils/schemaConverter";
+import { FeatureConfig } from "../../schema/utils/schemaConverter";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -42,7 +42,6 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
     value || {
       enabled: true,
       params: {},
-      children: {},
     }
   );
 
@@ -278,32 +277,6 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
             ([paramName, paramConfig]: [string, any]) =>
               renderParamInput(paramName, paramConfig)
           )}
-        </Card>
-      )}
-
-      {feature.children && Object.keys(feature.children).length > 0 && (
-        <Card title="子功能配置" size="small">
-          <Collapse
-            items={Object.entries(feature.children).map(
-              ([childName, childFeature]: [string, any]) => ({
-                key: childName,
-                label: childFeature.name || childName,
-                children: (
-                  <FeatureForm
-                    feature={childFeature}
-                    featureName={childName}
-                    value={localValue?.children?.[childName]}
-                    onChange={(childValue) => {
-                      const newValue = { ...localValue };
-                      if (!newValue.children) newValue.children = {};
-                      newValue.children[childName] = childValue;
-                      handleValueChange(newValue);
-                    }}
-                  />
-                ),
-              })
-            )}
-          />
         </Card>
       )}
     </Card>

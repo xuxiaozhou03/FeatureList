@@ -1,9 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
-  Card,
-  Tabs,
   Button,
-  Space,
   message,
   Radio,
   Modal,
@@ -22,12 +19,11 @@ import {
   EditOutlined,
   CodeOutlined,
   SettingOutlined,
-  FileTextOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
 import VersionForm from "./components/VersionForm";
-import { createVersionSchema } from "../version/utils/schemaConverter";
-import JsonEditor from "../version/components/JsonEditor";
+import { createVersionSchema } from "../schema/utils/schemaConverter";
+import JsonEditor from "../schema/components/JsonEditor";
 import { useFeatureSchema, useVersions, VersionItem } from "../hooks";
 import "./styles.css";
 
@@ -124,17 +120,6 @@ const VersionPage: React.FC = () => {
               ...currentFeature.params,
             },
           };
-
-          // 处理子功能
-          if (
-            schemaFeature.children &&
-            typeof schemaFeature.children === "object"
-          ) {
-            result[key].children = mergeFeatures(
-              schemaFeature.children,
-              currentFeature.children
-            );
-          }
         }
       });
 
@@ -357,204 +342,320 @@ const VersionPage: React.FC = () => {
     }
   }, [versionList, activeVersionId]);
 
-  // 构建 Tab 项
-  const tabItems = (versionList || []).map((version) => ({
-    key: version.id,
-    label: (
-      <div className="flex items-center gap-2">
-        <Badge
-          color={version.name === "enterprise" ? "gold" : "blue"}
-          size="small"
-        />
-        <span>{version.name}</span>
-        <Text type="secondary" className="text-xs">
-          v{version.version}
-        </Text>
-      </div>
-    ),
-    children: (
-      <div className="version-tab-content">
-        {/* 版本信息卡片 */}
-        <Card className="version-info-card mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-0 shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <SettingOutlined className="text-white text-xl" />
-              </div>
-              <div>
-                <Title level={4} className="mb-1">
-                  {version.name} <Badge text={`v${version.version}`} />
-                </Title>
-                <Paragraph className="text-gray-600 mb-2">
-                  {version.description || "暂无描述"}
-                </Paragraph>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <CalendarOutlined />
-                    创建于: {new Date(version.createdAt).toLocaleDateString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <EditOutlined />
-                    更新于: {new Date(version.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Tooltip title="重置配置">
-                <Button
-                  icon={<ReloadOutlined />}
-                  onClick={handleReset}
-                  size="small"
-                />
-              </Tooltip>
-              <Tooltip title="导出配置">
-                <Button
-                  icon={<DownloadOutlined />}
-                  onClick={handleExport}
-                  size="small"
-                />
-              </Tooltip>
-              <Tooltip title="删除版本">
-                <Button
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleDeleteVersion(version.id)}
-                  size="small"
-                  danger
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </Card>
-
-        {/* 编辑模式切换 */}
-        <Card className="mb-6 shadow-md border-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Text strong>编辑模式:</Text>
-              <Radio.Group
-                value={editMode}
-                onChange={(e) => setEditMode(e.target.value)}
-                buttonStyle="solid"
-                size="small"
-              >
-                <Radio.Button value="form">
-                  <EditOutlined /> 表单模式
-                </Radio.Button>
-                <Radio.Button value="json">
-                  <CodeOutlined /> JSON 模式
-                </Radio.Button>
-              </Radio.Group>
-            </div>
-          </div>
-        </Card>
-
-        {/* 编辑器内容 */}
-        <Card className="editor-card shadow-lg border-0 rounded-xl overflow-hidden">
-          {editMode === "form" ? (
-            <VersionForm
-              featureSchema={parsedFeatureSchema}
-              value={version}
-              onChange={handleFormChange}
-              isEditing={true}
-            />
-          ) : (
-            <JsonEditor
-              title="版本配置 JSON"
-              value={JSON.stringify(
-                {
-                  version: version.version,
-                  name: version.name,
-                  description: version.description,
-                  features: version.features,
-                },
-                null,
-                2
-              )}
-              onChange={handleJsonChange}
-              schema={versionSchema}
-              height="600px"
-            />
-          )}
-        </Card>
-      </div>
-    ),
-  }));
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* 页面标题 */}
-        <div className="mb-8">
-          <Title level={2} className="text-gray-800 mb-2">
-            版本管理
-          </Title>
-          <Paragraph className="text-gray-600 text-lg">
-            创建和管理不同的版本配置，支持表单编辑和 JSON 编辑两种模式
-          </Paragraph>
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="mb-6">
-          <Space>
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              新建版本
-            </Button>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleExportAll}
-              disabled={!versionList || versionList.length === 0}
-              className="shadow-md hover:shadow-lg transition-all duration-300"
-            >
-              导出所有版本
-            </Button>
-          </Space>
-        </div>
-
-        {/* 版本列表 */}
-        {versionList && versionList.length > 0 ? (
-          <Card className="shadow-lg border-0 rounded-xl overflow-hidden backdrop-blur-sm bg-white/90">
-            <Tabs
-              type="card"
-              hideAdd
-              activeKey={activeVersionId || undefined}
-              onChange={setActiveVersionId}
-              items={tabItems}
-              className="versions-tabs"
-            />
-          </Card>
-        ) : (
-          <Card className="shadow-lg border-0 rounded-xl text-center py-16">
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <div>
-                  <Text type="secondary" className="text-lg">
-                    暂无版本配置
-                  </Text>
-                  <br />
-                  <Text type="secondary">
-                    点击"新建版本"创建您的第一个版本配置
-                  </Text>
-                </div>
-              }
-            >
+    <div className="version-management min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">版本管理</h1>
+              <p className="text-sm text-gray-600">
+                创建和管理不同的版本配置，支持表单编辑和 JSON 编辑两种模式
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
                 onClick={() => setIsCreateModalOpen(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-indigo-600 hover:bg-indigo-700 border-0 transition-colors text-sm"
               >
                 新建版本
               </Button>
-            </Empty>
-          </Card>
-        )}
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={handleExportAll}
+                disabled={!versionList || versionList.length === 0}
+                className="text-sm"
+              >
+                导出所有版本
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-12 gap-6 h-full">
+          {/* 左侧版本列表 */}
+          <div className="col-span-4">
+            <div className="version-list-panel bg-white rounded-xl shadow-sm border border-gray-200 h-full">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    版本列表
+                  </h3>
+                  <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    size="small"
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="bg-indigo-600 hover:bg-indigo-700 border-0"
+                  >
+                    新建
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    icon={<DownloadOutlined />}
+                    size="small"
+                    onClick={handleExportAll}
+                    disabled={!versionList || versionList.length === 0}
+                    className="flex-1"
+                  >
+                    导出全部
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-4">
+                {versionList && versionList.length > 0 ? (
+                  <div className="space-y-3">
+                    {versionList.map((version) => (
+                      <div
+                        key={version.id}
+                        onClick={() => setActiveVersionId(version.id)}
+                        className={`version-card p-4 cursor-pointer ${
+                          activeVersionId === version.id ? "active" : ""
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge
+                                color={
+                                  version.name === "enterprise"
+                                    ? "#f59e0b"
+                                    : "#3b82f6"
+                                }
+                                size="default"
+                              />
+                              <h4 className="font-medium text-gray-900 truncate">
+                                {version.name}
+                              </h4>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                v{version.version}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(
+                                  version.updatedAt
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {version.description && (
+                              <p className="text-sm text-gray-600 line-clamp-2">
+                                {version.description}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-1 ml-2">
+                            <Tooltip title="导出配置">
+                              <Button
+                                icon={<DownloadOutlined />}
+                                size="small"
+                                type="text"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveVersionId(version.id);
+                                  setTimeout(() => handleExport(), 100);
+                                }}
+                                className="text-gray-400 hover:text-green-600"
+                              />
+                            </Tooltip>
+                            <Tooltip title="删除版本">
+                              <Button
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                type="text"
+                                danger
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteVersion(version.id);
+                                }}
+                                className="text-gray-400 hover:text-red-600"
+                              />
+                            </Tooltip>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      imageStyle={{ height: 48 }}
+                      description={
+                        <div>
+                          <Text type="secondary" className="text-sm">
+                            暂无版本配置
+                          </Text>
+                        </div>
+                      }
+                    >
+                      <Button
+                        icon={<PlusOutlined />}
+                        type="primary"
+                        size="small"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 border-0"
+                      >
+                        创建第一个版本
+                      </Button>
+                    </Empty>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 右侧版本详细配置 */}
+          <div className="col-span-8">
+            {activeVersion ? (
+              <div className="version-detail-panel bg-white rounded-xl shadow-sm border border-gray-200 h-full">
+                {/* 版本信息头部 */}
+                <div className="version-info-header p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <SettingOutlined className="text-white text-xl" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <Title level={4} className="mb-0 text-gray-900">
+                            {activeVersion.name}
+                          </Title>
+                          <Badge
+                            count={`v${activeVersion.version}`}
+                            style={{
+                              backgroundColor: "#3b82f6",
+                              fontSize: "11px",
+                              fontWeight: "500",
+                            }}
+                          />
+                        </div>
+                        <Paragraph className="text-gray-700 mb-3 text-sm">
+                          {activeVersion.description || "暂无描述"}
+                        </Paragraph>
+                        <div className="flex items-center gap-4 text-xs text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <CalendarOutlined className="text-blue-500" />
+                            创建于{" "}
+                            {new Date(
+                              activeVersion.createdAt
+                            ).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <EditOutlined className="text-green-500" />
+                            更新于{" "}
+                            {new Date(
+                              activeVersion.updatedAt
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Tooltip title="重置配置">
+                        <Button
+                          icon={<ReloadOutlined />}
+                          onClick={handleReset}
+                          size="small"
+                          className="border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                        />
+                      </Tooltip>
+                      <Tooltip title="导出配置">
+                        <Button
+                          icon={<DownloadOutlined />}
+                          onClick={handleExport}
+                          size="small"
+                          className="border-gray-300 hover:border-green-400 hover:text-green-600"
+                        />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 编辑模式切换 */}
+                <div className="edit-mode-section p-6 border-b border-gray-200 bg-gray-50">
+                  <div className="flex items-center gap-4">
+                    <Text strong className="text-sm text-gray-900">
+                      编辑模式
+                    </Text>
+                    <Radio.Group
+                      value={editMode}
+                      onChange={(e) => setEditMode(e.target.value)}
+                      buttonStyle="solid"
+                      size="middle"
+                      className="edit-mode-radio"
+                    >
+                      <Radio.Button value="form" className="px-4">
+                        <EditOutlined className="mr-1" />
+                        表单模式
+                      </Radio.Button>
+                      <Radio.Button value="json" className="px-4">
+                        <CodeOutlined className="mr-1" />
+                        JSON 模式
+                      </Radio.Button>
+                    </Radio.Group>
+                  </div>
+                </div>
+
+                {/* 编辑器内容 */}
+                <div className="flex-1 overflow-hidden">
+                  <div className="h-full p-6">
+                    {editMode === "form" ? (
+                      <VersionForm
+                        featureSchema={parsedFeatureSchema}
+                        value={activeVersion}
+                        onChange={handleFormChange}
+                        isEditing={true}
+                      />
+                    ) : (
+                      <div className="h-full border border-gray-200 rounded-lg overflow-hidden">
+                        <JsonEditor
+                          value={JSON.stringify(
+                            {
+                              version: activeVersion.version,
+                              name: activeVersion.name,
+                              description: activeVersion.description,
+                              features: activeVersion.features,
+                            },
+                            null,
+                            2
+                          )}
+                          onChange={handleJsonChange}
+                          schema={versionSchema}
+                          height="600px"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex items-center justify-center">
+                <div className="text-center">
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    imageStyle={{ height: 60 }}
+                    description={
+                      <div>
+                        <Text type="secondary" className="text-base">
+                          请选择一个版本进行配置
+                        </Text>
+                      </div>
+                    }
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* 创建版本对话框 */}
         <Modal
