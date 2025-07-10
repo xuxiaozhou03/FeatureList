@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "patternProperties": {
+    "^.*$": {
+      "type": "object",
+      "description": "功能配置对象，每个 key 代表一个功能或子功能。",
+      "properties": {
+        "title": { "type": "string", "description": "功能或子功能的标题。" },
+        "description": {
+          "type": "string",
+          "description": "功能或子功能的描述。"
+        },
+        "params": {
+          "type": "object",
+          "description": "功能参数对象，每个 key 代表一个参数。",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "description": "参数配置对象。",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "number", "boolean"],
+                  "enumDescriptions": ["字符串类型", "数字类型", "布尔类型"]
+                },
+                "title": { "type": "string", "description": "参数标题。" },
+                "description": { "type": "string", "description": "参数描述。" }
+              },
+              "required": ["type", "title"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^((?!title$|description$|params$).)+$": {
+          "$ref": "#/$defs/featureNode"
+        }
+      },
+      "required": ["title"]
+    }
+  },
+  "$defs": {
+    "featureNode": {
+      "type": "object",
+      "description": "功能或子功能对象，支持递归嵌套。",
+      "properties": {
+        "title": { "type": "string", "description": "功能或子功能的标题。" },
+        "description": {
+          "type": "string",
+          "description": "功能或子功能的描述。"
+        },
+        "params": {
+          "type": "object",
+          "description": "功能参数对象，每个 key 代表一个参数。",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "description": "参数配置对象。",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "number", "boolean"],
+                  "description": "参数类型，可为 string、number 或 boolean。"
+                },
+                "title": { "type": "string", "description": "参数标题。" },
+                "description": { "type": "string", "description": "参数描述。" }
+              },
+              "required": ["type", "title"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^((?!title$|description$|params$).)+$": {
+          "$ref": "#/$defs/featureNode"
+        }
+      },
+      "required": ["title"]
+    }
+  },
+  "additionalProperties": false
+}
