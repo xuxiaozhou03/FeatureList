@@ -120,6 +120,37 @@ const VersionPage: React.FC = () => {
               ...currentFeature.params,
             },
           };
+
+          // 处理子功能
+          const childFeatures = Object.entries(schemaFeature).filter(
+            ([childKey]) =>
+              ![
+                "name",
+                "description",
+                "paramSchema",
+                "enabled",
+                "params",
+              ].includes(childKey)
+          );
+
+          if (childFeatures.length > 0) {
+            result[key].children = {};
+            childFeatures.forEach(([childName, childFeature]) => {
+              if (childFeature && typeof childFeature === "object") {
+                const childConfig = childFeature as any;
+                result[key].children[childName] = {
+                  enabled:
+                    currentFeature.children?.[childName]?.enabled !== undefined
+                      ? currentFeature.children[childName].enabled
+                      : true,
+                  params: {
+                    ...childConfig.params,
+                    ...currentFeature.children?.[childName]?.params,
+                  },
+                };
+              }
+            });
+          }
         }
       });
 

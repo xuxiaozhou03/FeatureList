@@ -42,6 +42,7 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
     value || {
       enabled: true,
       params: {},
+      children: {},
     }
   );
 
@@ -279,6 +280,38 @@ const FeatureForm: React.FC<FeatureFormProps> = ({
           )}
         </Card>
       )}
+
+      {/* 检查是否有子功能 */}
+      {(() => {
+        const childFeatures = Object.entries(feature).filter(
+          ([key]) => !["name", "description", "paramSchema"].includes(key)
+        );
+        return childFeatures.length > 0 ? (
+          <Card title="子功能配置" size="small">
+            <Collapse
+              items={childFeatures.map(
+                ([childName, childFeature]: [string, any]) => ({
+                  key: childName,
+                  label: childFeature.name || childName,
+                  children: (
+                    <FeatureForm
+                      feature={childFeature}
+                      featureName={childName}
+                      value={localValue?.children?.[childName]}
+                      onChange={(childValue) => {
+                        const newValue = { ...localValue };
+                        if (!newValue.children) newValue.children = {};
+                        newValue.children[childName] = childValue;
+                        handleValueChange(newValue);
+                      }}
+                    />
+                  ),
+                })
+              )}
+            />
+          </Card>
+        ) : null;
+      })()}
     </Card>
   );
 };

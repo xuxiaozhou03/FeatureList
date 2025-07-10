@@ -142,9 +142,13 @@ export const generateExampleData = (
   const exampleFeatures: any = {};
 
   // 递归函数来扁平化处理功能配置
-  const processFeature = (feature: FeatureConfig, featureName: string, prefix: string = '') => {
+  const processFeature = (
+    feature: FeatureConfig,
+    featureName: string,
+    prefix: string = ""
+  ) => {
     const fullName = prefix ? `${prefix}.${featureName}` : featureName;
-    
+
     exampleFeatures[fullName] = {
       enabled: true,
     };
@@ -232,9 +236,13 @@ export const createVersionSchema = (
     const requiredFeatures: string[] = [];
 
     // 递归函数来扁平化处理功能配置
-    const processFeature = (feature: FeatureConfig, featureName: string, prefix: string = '') => {
+    const processFeature = (
+      feature: FeatureConfig,
+      featureName: string,
+      prefix: string = ""
+    ) => {
       const fullName = prefix ? `${prefix}.${featureName}` : featureName;
-      
+
       features[fullName] = convertFeatureToVersionFormat(feature);
       requiredFeatures.push(fullName);
 
