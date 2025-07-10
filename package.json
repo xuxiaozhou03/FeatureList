@@ -1,0 +1,54 @@
+{
+  "name": "feature-list-control-system",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "版本/功能清单控制系统 - 现代化版本功能管理系统",
+  "scripts": {
+    "dev": "vite",
+    "dev:community": "VERSION=community vite",
+    "dev:enterprise": "VERSION=enterprise vite",
+    "dev:professional": "VERSION=professional vite",
+    "build": "tsc && vite build",
+    "build:community": "tsc && VERSION=community vite build",
+    "build:enterprise": "tsc && VERSION=enterprise vite build",
+    "build:professional": "tsc && VERSION=professional vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@monaco-editor/react": "^4.6.0",
+    "antd": "^5.12.8",
+    "dayjs": "^1.11.10",
+    "lodash-es": "^4.17.21",
+    "monaco-editor": "^0.45.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "keywords": [
+    "feature-flag",
+    "version-management",
+    "react",
+    "typescript",
+    "antd",
+    "monaco-editor"
+  ],
+  "author": "FeatureList Team",
+  "license": "MIT"
+}

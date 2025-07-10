@@ -6,6 +6,8 @@
 
 该系统专为企业级应用设计，支持多版本功能管理和动态配置，可以轻松实现不同版本产品的功能差异化控制。
 
+**核心理念**：先定义功能清单模板 → 基于模板配置版本 → 在项目中使用配置
+
 ## 核心功能
 
 ### 🎯 版本管理
@@ -60,17 +62,17 @@
 - **React 18**：现代化的用户界面框架
 - **TypeScript**：类型安全的 JavaScript 超集
 - **Ant Design 5.0**：企业级 UI 组件库
-- **Tailwind CSS**：实用优先的 CSS 框架
-- **Monaco Editor**：基于 VS Code 的在线代码编辑器
+- **CSS Modules**：模块化样式解决方案，提供样式隔离和类名哈希
+- **Monaco Editor**：基于 VS Code 的在线代码编辑器，集成 JSON Schema 验证
 - **React Router DOM**：客户端路由管理
 - **Vite**：现代化构建工具
 
 ### 核心模块
 
-- **功能定义模块** (`/modules/define`)：功能清单的 Schema 定义
-- **版本管理模块** (`/modules/versions`)：版本配置的增删改查
-- **功能展示模块** (`/modules/display`)：功能状态的可视化展示
-- **Schema 管理模块** (`/modules/schema`)：JSON Schema 的生成和管理
+- **功能定义模块** (`/modules/feature-config`)：功能清单的 Schema 定义和配置管理
+- **版本管理模块** (`/modules/version-management`)：版本配置的增删改查
+- **功能展示模块** (`/modules/feature-status`)：功能状态的可视化展示
+- **Schema 管理模块** (`/modules/schema-tools`)：JSON Schema 的生成和管理
 - **Hooks 模块** (`/modules/hooks`)：可复用的状态管理逻辑
 
 ## 系统实现
@@ -78,6 +80,293 @@
 ### 1. 功能清单定义
 
 使用 JSON Schema 定义功能清单的数据结构，确保配置的一致性和可验证性。
+
+## 系统使用流程
+
+### 🔄 三步使用流程
+
+系统遵循严格的三步使用流程，确保功能管理的有序性和一致性：
+
+#### 第一步：定义功能清单 (`FeatureConfig`)
+
+**必须首先定义完整的功能清单配置**，这是整个系统的基础。功能清单定义了所有可能的功能项、参数配置和层级结构。
+
+```json
+// 示例：定义一个完整的功能清单（JSON Schema 格式）
+{
+  "dashboard": {
+    "title": "仪表板",
+    "description": "系统主仪表板功能",
+    "paramsConfig": {
+      "layout": {
+        "type": "enum",
+        "title": "布局样式",
+        "description": "仪表板的布局样式",
+        "enums": [
+          { "label": "网格布局", "value": "grid" },
+          { "label": "列表布局", "value": "list" }
+        ]
+      },
+      "refreshInterval": {
+        "type": "number",
+        "title": "刷新间隔",
+        "description": "自动刷新间隔时间（秒）"
+      }
+    }
+  },
+  "projects": {
+    "title": "项目管理",
+    "description": "项目管理相关功能",
+    "paramsConfig": {
+      "maxProjects": {
+        "type": "number",
+        "title": "最大项目数",
+        "description": "允许创建的最大项目数量"
+      },
+      "visibility": {
+        "type": "enum",
+        "title": "可见性选项",
+        "description": "项目可见性设置",
+        "enums": [
+          { "label": "公开", "value": "public" },
+          { "label": "私有", "value": "private" }
+        ]
+      }
+    },
+    "children": {
+      "pipelines": {
+        "title": "流水线",
+        "description": "CI/CD 流水线功能",
+        "paramsConfig": {
+          "maxPipelines": {
+            "type": "number",
+            "title": "最大流水线数",
+            "description": "每个项目允许的最大流水线数"
+          },
+          "concurrentBuilds": {
+            "type": "number",
+            "title": "并发构建数",
+            "description": "同时进行的构建任务数"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### 功能清单约束 JSON Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "功能清单配置 Schema",
+  "description": "定义功能清单配置的结构和约束",
+  "type": "object",
+  "patternProperties": {
+    "^[a-zA-Z][a-zA-Z0-9_]*$": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "功能名称"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "功能详细描述"
+        },
+        "paramsConfig": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z][a-zA-Z0-9_]*$": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "number", "boolean", "enum"],
+                  "description": "配置项的类型"
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "description": "配置项的标题"
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "description": "配置项详细描述"
+                },
+                "enums": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "oneOf": [{ "type": "string" }, { "type": "number" }]
+                      }
+                    },
+                    "required": ["label", "value"],
+                    "additionalProperties": false
+                  },
+                  "minItems": 1,
+                  "description": "枚举选项（当 type 为 enum 时必需）"
+                }
+              },
+              "required": ["type", "title"],
+              "additionalProperties": false,
+              "if": {
+                "properties": { "type": { "const": "enum" } }
+              },
+              "then": {
+                "required": ["enums"]
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "功能个性化配置参数"
+        },
+        "children": {
+          "$ref": "#",
+          "description": "子功能配置"
+        }
+      },
+      "required": ["title"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}
+```
+
+#### 第二步：版本管理和功能配置
+
+**基于已定义的功能清单，创建和管理不同版本的功能配置**。每个版本配置必须严格符合功能清单的结构。
+
+```json
+// 社区版配置示例
+{
+  "id": "community-001",
+  "version": "1.0.0",
+  "name": "community",
+  "description": "社区版",
+  "features": {
+    "dashboard": {
+      "enabled": true,
+      "params": {
+        "layout": "grid",
+        "refreshInterval": 30
+      }
+    },
+    "projects": {
+      "enabled": true,
+      "params": {
+        "maxProjects": 10,
+        "visibility": ["public"]
+      },
+      "children": {
+        "pipelines": {
+          "enabled": false
+        }
+      }
+    }
+  }
+}
+```
+
+```json
+// 企业版配置示例
+{
+  "id": "enterprise-001",
+  "version": "1.0.0",
+  "name": "enterprise",
+  "description": "企业版",
+  "features": {
+    "dashboard": {
+      "enabled": true,
+      "params": {
+        "layout": "grid",
+        "refreshInterval": 10
+      }
+    },
+    "projects": {
+      "enabled": true,
+      "params": {
+        "maxProjects": 1000,
+        "visibility": ["public", "private"]
+      },
+      "children": {
+        "pipelines": {
+          "enabled": true,
+          "params": {
+            "maxPipelines": 50,
+            "concurrentBuilds": 10
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### 第三步：前端项目集成使用
+
+**在前端项目中使用配置好的版本和功能**，通过 Hooks 系统实现功能的动态控制。
+
+```tsx
+// 在 React 组件中使用
+import { useFeatures, useFeatureEnabled, useFeatureParams } from "./hooks";
+
+const App = () => {
+  const { version, versionConfig, setVersion } = useFeatures();
+  const dashboardEnabled = useFeatureEnabled("dashboard");
+  const pipelinesEnabled = useFeatureEnabled("projects.pipelines");
+  const dashboardParams = useFeatureParams("dashboard");
+  const projectsParams = useFeatureParams("projects");
+
+  return (
+    <div>
+      <h1>当前版本: {versionConfig.name}</h1>
+
+      {/* 版本切换 */}
+      <button onClick={() => setVersion("community")}>切换到社区版</button>
+      <button onClick={() => setVersion("enterprise")}>切换到企业版</button>
+
+      {/* 条件渲染功能 */}
+      {dashboardEnabled && (
+        <Dashboard
+          layout={dashboardParams?.layout}
+          refreshInterval={dashboardParams?.refreshInterval}
+        />
+      )}
+
+      <Projects maxProjects={projectsParams?.maxProjects}>
+        {pipelinesEnabled && (
+          <Pipelines
+            maxPipelines={pipelinesParams?.maxPipelines}
+            concurrentBuilds={pipelinesParams?.concurrentBuilds}
+          />
+        )}
+      </Projects>
+    </div>
+  );
+};
+```
+
+### 🎯 流程要点
+
+1. **功能清单优先**：必须先定义完整的 `FeatureConfig`，这是所有后续配置的模板
+2. **严格类型约束**：版本配置必须符合功能清单定义的结构和类型
+3. **渐进式配置**：可以先定义基础功能，后续逐步扩展
+4. **一致性保证**：所有版本的功能配置都基于同一个功能清单定义
 
 #### 功能配置接口
 
@@ -143,8 +432,8 @@ interface VersionConfig {
 #### 配置编辑器
 
 - **表单模式**：基于 Ant Design 的可视化表单编辑
-- **JSON 模式**：基于 Monaco Editor 的代码编辑，支持语法高亮和自动完成
-- **Schema 支持**：实时 JSON Schema 验证和错误提示
+- **JSON 模式**：基于 Monaco Editor 的代码编辑，集成 JSON Schema 验证，支持语法高亮、自动完成和实时错误提示
+- **Schema 支持**：动态加载功能清单对应的 JSON Schema，确保配置的正确性和一致性
 
 ### 3. 功能展示系统
 
@@ -170,10 +459,85 @@ interface VersionConfig {
 #### 主要功能
 
 - **动态 Schema 生成**：基于功能清单自动生成版本配置的 JSON Schema
+- **功能清单验证**：使用约束 Schema 验证功能清单配置的正确性
 - **TypeScript 定义导出**：生成对应的 TypeScript 类型定义
 - **Schema 下载**：支持 Schema 文件和类型定义文件的下载
 
 ## 使用指南
+
+### 🚀 完整使用流程
+
+#### 步骤 0：了解系统结构
+
+系统提供四个主要页面，按照使用流程顺序访问：
+
+1. **功能清单定义** (`/feature-config`) - 第一步：定义功能模板
+2. **版本配置管理** (`/version-management`) - 第二步：配置版本功能
+3. **功能状态展示** (`/feature-status`) - 第三步：查看和测试功能
+4. **Schema 管理工具** (`/schema-tools`) - 辅助工具：管理 Schema
+
+#### 步骤 1：定义功能清单
+
+首先需要在 `/modules/feature-config/constant/` 目录下定义您的功能清单配置：
+
+```json
+// /modules/feature-config/constant/featureList.json
+{
+  "dashboard": {
+    "title": "仪表板",
+    "description": "系统主仪表板功能",
+    "paramsConfig": {
+      "layout": {
+        "type": "enum",
+        "title": "布局样式",
+        "enums": [
+          { "label": "网格布局", "value": "grid" },
+          { "label": "列表布局", "value": "list" }
+        ]
+      }
+    }
+  }
+}
+```
+
+#### 步骤 2：启动管理界面
+
+```bash
+# 克隆项目
+git clone <repository-url>
+cd FeatureList
+
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm run dev
+```
+
+#### 步骤 3：配置版本
+
+1. 访问 `http://localhost:5173/version-management` 进入版本配置管理页面
+2. 点击"新建版本"创建版本配置
+3. 基于功能清单配置每个版本的功能启用状态和参数
+4. 导出版本配置文件
+
+#### 步骤 4：项目集成
+
+将配置集成到您的前端项目中：
+
+```tsx
+// 1. 安装依赖并复制必要文件
+// 2. 导入 Hooks
+import { useFeatures, useFeatureEnabled } from "./hooks";
+
+// 3. 在组件中使用
+const MyApp = () => {
+  const { version, versionConfig } = useFeatures();
+  const dashboardEnabled = useFeatureEnabled("dashboard");
+
+  return <div>{dashboardEnabled && <Dashboard />}</div>;
+};
+```
 
 ### 快速开始
 
@@ -202,10 +566,14 @@ interface VersionConfig {
    pnpm run dev:professional # 专业版
    ```
 
+   > 💡 **提示**：不同版本启动后，访问 `/feature-status` 页面可以看到当前版本的功能差异
+
 4. **访问应用**
-   - 版本管理页面：`http://localhost:5173/versions`
-   - 功能展示页面：`http://localhost:5173/display`
-   - Schema 管理页面：`http://localhost:5173/schema`
+   - 🏠 系统首页：`http://localhost:5173/`
+   - 📝 功能清单定义：`http://localhost:5173/feature-config`
+   - ⚙️ 版本配置管理：`http://localhost:5173/version-management`
+   - 📊 功能状态展示：`http://localhost:5173/feature-status`
+   - 🛠️ Schema 管理工具：`http://localhost:5173/schema-tools`
 
 ### 页面导航
 
@@ -215,21 +583,28 @@ interface VersionConfig {
 - 版本状态摘要
 - 功能统计信息
 
-#### ⚙️ 版本管理 (`/versions`)
+#### 📝 功能清单定义 (`/feature-config`)
+
+- **功能清单编辑**：定义和编辑功能清单配置
+- **Schema 验证**：实时验证功能清单的格式正确性
+- **预览功能**：可视化预览功能清单结构
+- **导入导出**：支持功能清单的导入和导出
+
+#### ⚙️ 版本配置管理 (`/version-management`)
 
 - **版本列表**：查看所有已配置的版本
 - **版本编辑**：支持表单模式和 JSON 模式编辑
 - **版本操作**：创建、删除、导入、导出版本配置
 - **实时预览**：配置变更的实时预览
 
-#### 📊 功能展示 (`/display`)
+#### 📊 功能状态展示 (`/feature-status`)
 
 - **版本信息**：当前版本的详细信息
 - **功能概览**：功能启用状态的统计和可视化
 - **功能详情**：每个功能的详细配置和参数
 - **开发者测试**：Hook 功能的实时测试和验证
 
-#### 📐 Schema 管理 (`/schema`)
+#### �️ Schema 管理工具 (`/schema-tools`)
 
 - **JSON Schema**：版本配置的 Schema 定义
 - **TypeScript 定义**：类型安全的 TypeScript 接口
@@ -425,14 +800,22 @@ const ConfigurableComponent = () => {
 
 ## 最佳实践
 
-### 1. 功能设计原则
+### 0. 流程管理原则
+
+- **功能清单先行**：在创建任何版本配置之前，必须先完整定义功能清单
+- **渐进式定义**：可以从核心功能开始，逐步扩展功能清单
+- **版本一致性**：所有版本配置都必须基于同一个功能清单定义
+- **配置验证**：使用系统提供的 Schema 验证确保配置正确性
+
+### 1. 功能清单设计原则
 
 - **最小化原则**：只在必要时添加功能开关
 - **向后兼容**：新功能默认向后兼容
 - **清晰命名**：使用语义化的功能名称
 - **合理分层**：适当使用子功能来组织复杂功能
+- **参数化设计**：合理设计功能参数，提高配置灵活性
 
-### 2. 配置管理
+### 2. 版本配置管理
 
 - **环境隔离**：不同环境使用独立的配置
 - **版本控制**：将配置文件纳入版本控制
@@ -441,6 +824,7 @@ const ConfigurableComponent = () => {
 ### 3. 开发建议
 
 - **类型安全**：充分利用 TypeScript 的类型检查
+- **样式隔离**：使用 CSS Modules 确保样式的模块化和避免命名冲突
 - **测试覆盖**：为功能开关编写单元测试
 - **性能考虑**：避免在渲染循环中频繁调用 Hook
 - **错误处理**：妥善处理配置缺失或错误的情况
@@ -479,7 +863,7 @@ const ConfigurableComponent = () => {
 ### 调试技巧
 
 1. **使用开发者工具**：打开浏览器开发者工具查看 Console 输出
-2. **启用测试模式**：访问 `/display` 页面使用内置的测试功能
+2. **启用测试模式**：访问 `/feature-status` 页面使用内置的测试功能
 3. **检查 localStorage**：查看浏览器 localStorage 中的配置数据
 4. **版本对比**：使用版本切换功能对比不同版本的行为差异
 
@@ -488,21 +872,21 @@ const ConfigurableComponent = () => {
 ```
 src/
 ├── modules/
-│   ├── define/              # 功能定义模块
+│   ├── feature-config/      # 功能定义模块
 │   │   ├── constant/        # 常量和 Schema 定义
 │   │   └── components/      # 预览组件
-│   ├── versions/            # 版本管理模块
+│   ├── version-management/  # 版本管理模块
 │   │   ├── components/      # 版本管理组件
-│   │   └── styles.css       # 样式文件
-│   ├── display/             # 功能展示模块
+│   │   └── styles.module.css # CSS Modules 样式文件
+│   ├── feature-status/      # 功能展示模块
 │   │   └── components/      # 展示组件
-│   ├── schema/              # Schema 管理模块
+│   ├── schema-tools/        # Schema 管理模块
 │   │   ├── components/      # Schema 编辑器
 │   │   └── utils/           # Schema 工具函数
 │   └── hooks/               # 全局 Hooks
 ├── auto-generate/           # 自动生成的配置文件
 ├── components/              # 通用组件
-└── styles/                  # 全局样式
+└── styles/                  # 全局样式和 CSS Modules
 ```
 
 ## 贡献指南
