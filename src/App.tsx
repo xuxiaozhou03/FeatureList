@@ -1,48 +1,44 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { Layout } from "antd";
-import AppHeader from "@/components/AppHeader";
-import DefineFeaturesPage from "@/pages";
+import React, { useState } from "react";
+import DefineFeaturesEditorTab from "./components/DefineFeaturesEditorTab";
+import { Card, Tabs } from "antd";
+import { CodeOutlined } from "@ant-design/icons";
+
 import styles from "./App.module.css";
 
-const { Content } = Layout;
+const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("editor");
 
-function App() {
+  const tabItems = [
+    {
+      key: "editor",
+      label: (
+        <span>
+          <CodeOutlined /> 定义功能清单
+        </span>
+      ),
+      children: (
+        <React.Suspense fallback={null}>
+          <DefineFeaturesEditorTab />
+        </React.Suspense>
+      ),
+    },
+  ];
+
   return (
-    <div className={styles.app}>
-      <Router>
-        <Layout className={styles.layout}>
-          <div
-            style={{ display: "flex", flexDirection: "column", width: "100%" }}
-          >
-            <AppHeader />
-          </div>
-          <Layout className={styles.contentLayout}>
-            <Content className={styles.content}>
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Navigate to="/define-features" replace />}
-                />
-                <Route
-                  path="/define-features"
-                  element={<DefineFeaturesPage />}
-                />
-                <Route
-                  path="*"
-                  element={<Navigate to="/define-features" replace />}
-                />
-              </Routes>
-            </Content>
-          </Layout>
-        </Layout>
-      </Router>
+    <div className={styles.page}>
+      <Card>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) =>
+            setActiveTab(
+              key as "editor" | "preview" | "help" | "version-schema"
+            )
+          }
+          items={tabItems}
+        />
+      </Card>
     </div>
   );
-}
+};
 
 export default App;
