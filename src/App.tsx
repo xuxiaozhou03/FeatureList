@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DefineFeaturesEditorTab from "./components/DefineFeaturesEditorTab";
 import VisualFeatureListTab from "./components/VisualFeatureListTab";
 import VersionFeatureListTab from "./components/VersionFeatureListTab";
+import ConfigVersionFeatureListTab from "./components/ConfigVersionFeatureListTab";
 import { Card, Tabs } from "antd";
 import { CodeOutlined } from "@ant-design/icons";
 
@@ -37,6 +38,15 @@ const App: React.FC = () => {
         </span>
       ),
       children: <VersionFeatureListTab />,
+    },
+    {
+      key: "config-version-feature-list",
+      label: (
+        <span>
+          <CodeOutlined /> 配置版本及功能清单
+        </span>
+      ),
+      children: <ConfigVersionFeatureListTab />,
     },
   ];
 
