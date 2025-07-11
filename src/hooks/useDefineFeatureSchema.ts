@@ -2,14 +2,24 @@ import featureConfigSchema from "../schema/feature-config.schema.json";
 import { useLocalStorageState } from "ahooks";
 
 const useDefineFeatureSchema = () => {
-  const [data, setData] = useLocalStorageState("define-feature-schema", {
-    defaultValue: JSON.stringify(featureConfigSchema.example, null, 2),
-  });
+  const [schemaStr, setSchemaStr] = useLocalStorageState(
+    "define-feature-schema",
+    {
+      defaultValue: JSON.stringify(featureConfigSchema.example, null, 2),
+    }
+  );
+  let features: any = {};
+  try {
+    features = JSON.parse(schemaStr || "{}") || {};
+  } catch {
+    features = {};
+  }
 
   return {
-    data,
-    setData,
+    schemaStr,
+    setSchemaStr,
     featureConfigSchema,
+    features,
   };
 };
 export default useDefineFeatureSchema;

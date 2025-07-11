@@ -1,32 +1,26 @@
 import React from "react";
 import useDefineFeatureSchema from "../hooks/useDefineFeatureSchema";
 import MonacoJsonEditor from "./MonacoJsonEditor";
-import styles from "./style.module.css";
-import { Typography } from "antd";
-const { Title, Text } = Typography;
+import Wrapper from "./Wrapper";
 
 const DefineFeaturesEditorTab: React.FC = () => {
-  const { data, setData, featureConfigSchema } = useDefineFeatureSchema();
+  const { schemaStr, setSchemaStr, featureConfigSchema } =
+    useDefineFeatureSchema();
 
   return (
-    <div>
-      <div className={styles.header}>
-        <div>
-          <Title level={3}>定义功能清单</Title>
-          <Text type="secondary">
-            定义功能的结构和参数Schema约束，支持嵌套功能和参数验证
-          </Text>
-        </div>
-      </div>
+    <Wrapper
+      title="功能定义编辑器"
+      description="定义功能的结构和参数Schema约束，支持嵌套功能和参数验证"
+    >
       <MonacoJsonEditor
-        value={data}
+        value={schemaStr}
         height={500}
         schema={featureConfigSchema}
         onChange={(value) => {
-          setData(value);
+          setSchemaStr(value);
         }}
       />
-    </div>
+    </Wrapper>
   );
 };
 

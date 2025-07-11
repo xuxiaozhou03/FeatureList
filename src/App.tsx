@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import DefineFeaturesEditorTab from "./components/DefineFeaturesEditorTab";
+import VisualFeatureListTab from "./components/VisualFeatureListTab";
+import VersionFeatureListTab from "./components/VersionFeatureListTab";
 import { Card, Tabs } from "antd";
 import { CodeOutlined } from "@ant-design/icons";
 
@@ -16,11 +18,25 @@ const App: React.FC = () => {
           <CodeOutlined /> 定义功能清单
         </span>
       ),
-      children: (
-        <React.Suspense fallback={null}>
-          <DefineFeaturesEditorTab />
-        </React.Suspense>
+      children: <DefineFeaturesEditorTab />,
+    },
+    {
+      key: "visual-feature-list",
+      label: (
+        <span>
+          <CodeOutlined /> 可视化功能清单
+        </span>
       ),
+      children: <VisualFeatureListTab />,
+    },
+    {
+      key: "version-feature-list",
+      label: (
+        <span>
+          <CodeOutlined /> 版本及功能清单
+        </span>
+      ),
+      children: <VersionFeatureListTab />,
     },
   ];
 
@@ -31,7 +47,12 @@ const App: React.FC = () => {
           activeKey={activeTab}
           onChange={(key) =>
             setActiveTab(
-              key as "editor" | "preview" | "help" | "version-schema"
+              key as
+                | "editor"
+                | "preview"
+                | "help"
+                | "version-schema"
+                | "version-feature-list"
             )
           }
           items={tabItems}
