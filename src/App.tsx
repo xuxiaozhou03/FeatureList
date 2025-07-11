@@ -6,10 +6,7 @@ import {
 } from "react-router-dom";
 import { Layout } from "antd";
 import AppHeader from "@/components/AppHeader";
-import DefineFeaturesPage from "@/pages/define-features";
-import VersionManagementPage from "@/pages/version-management";
-import FeatureStatusPage from "@/pages/feature-status";
-import SchemaToolsPage from "@/pages/schema-tools";
+import DefineFeaturesPage from "@/pages";
 import styles from "./App.module.css";
 
 const { Content } = Layout;
@@ -35,12 +32,6 @@ function App() {
                   path="/define-features"
                   element={<DefineFeaturesPage />}
                 />
-                <Route
-                  path="/version-management"
-                  element={<VersionManagementPage />}
-                />
-                <Route path="/feature-status" element={<FeatureStatusPage />} />
-                <Route path="/schema-tools" element={<SchemaToolsPage />} />
                 <Route
                   path="*"
                   element={<Navigate to="/define-features" replace />}

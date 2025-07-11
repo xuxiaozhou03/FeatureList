@@ -1,6 +1,6 @@
 import React from "react";
-import MonacoJsonEditor from "./components/MonacoJsonEditor";
-import useDefineFeatureSchema from "./hooks/useDefineFeatureSchema";
+import MonacoJsonEditor from "./MonacoJsonEditor";
+import useDefineFeatureSchema from "../hooks/useDefineFeatureSchema";
 
 const DefineFeaturesEditorTab: React.FC = () => {
   const { data, setData, featureConfigSchema } = useDefineFeatureSchema();

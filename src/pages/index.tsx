@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import DefineFeaturesEditorTab from "./DefineFeaturesEditorTab";
+import DefineFeaturesEditorTab from "./components/DefineFeaturesEditorTab";
 import { Card, Typography, Tabs } from "antd";
 import { CodeOutlined } from "@ant-design/icons";
 
