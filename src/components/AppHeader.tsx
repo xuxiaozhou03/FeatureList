@@ -1,14 +1,26 @@
 import React from "react";
-import { Layout, Typography, Space, Button, Dropdown, Avatar } from "antd";
+import {
+  Layout,
+  Typography,
+  Space,
+  Button,
+  Dropdown,
+  Avatar,
+  Menu,
+} from "antd";
 import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
   GithubOutlined,
   QuestionCircleOutlined,
+  BranchesOutlined,
+  DashboardOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import styles from "./AppHeader.module.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -58,6 +70,35 @@ const AppHeader: React.FC = () => {
     window.open("/docs", "_blank");
   };
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const menuItems = [
+    {
+      key: "/define-features",
+      icon: <SettingOutlined />,
+      label: "定义功能清单",
+    },
+    {
+      key: "/version-management",
+      icon: <BranchesOutlined />,
+      label: "版本管理",
+    },
+    {
+      key: "/feature-status",
+      icon: <DashboardOutlined />,
+      label: "功能状态展示",
+    },
+    {
+      key: "/schema-tools",
+      icon: <CodeOutlined />,
+      label: "Schema 管理工具",
+    },
+  ];
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    navigate(key);
+  };
+
   return (
     <Header className={styles.header}>
       <div className={styles.left}>
@@ -66,8 +107,14 @@ const AppHeader: React.FC = () => {
             功能清单控制系统
           </Title>
         </div>
+        <Menu
+          mode="horizontal"
+          selectedKeys={[location.pathname]}
+          items={menuItems}
+          onClick={handleMenuClick}
+          className={styles.menu}
+        />
       </div>
-
       <div className={styles.right}>
         <Space size="middle">
           <Button
@@ -78,7 +125,6 @@ const AppHeader: React.FC = () => {
           >
             GitHub
           </Button>
-
           <Button
             type="text"
             icon={<QuestionCircleOutlined />}
@@ -87,7 +133,6 @@ const AppHeader: React.FC = () => {
           >
             帮助
           </Button>
-
           <Dropdown
             menu={{
               items: userMenuItems,

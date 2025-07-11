@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import { Layout } from "antd";
 import AppHeader from "@/components/AppHeader";
-import AppSidebar from "@/components/AppSidebar";
 import DefineFeaturesPage from "@/pages/define-features";
 import VersionManagementPage from "@/pages/version-management";
 import FeatureStatusPage from "@/pages/feature-status";
@@ -20,36 +19,34 @@ function App() {
     <div className={styles.app}>
       <Router>
         <Layout className={styles.layout}>
-          <AppHeader />
-          <Layout>
-            <AppSidebar />
-            <Layout className={styles.contentLayout}>
-              <Content className={styles.content}>
-                <Routes>
-                  <Route
-                    path="/"
-                    element={<Navigate to="/define-features" replace />}
-                  />
-                  <Route
-                    path="/define-features"
-                    element={<DefineFeaturesPage />}
-                  />
-                  <Route
-                    path="/version-management"
-                    element={<VersionManagementPage />}
-                  />
-                  <Route
-                    path="/feature-status"
-                    element={<FeatureStatusPage />}
-                  />
-                  <Route path="/schema-tools" element={<SchemaToolsPage />} />
-                  <Route
-                    path="*"
-                    element={<Navigate to="/define-features" replace />}
-                  />
-                </Routes>
-              </Content>
-            </Layout>
+          <div
+            style={{ display: "flex", flexDirection: "column", width: "100%" }}
+          >
+            <AppHeader />
+          </div>
+          <Layout className={styles.contentLayout}>
+            <Content className={styles.content}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Navigate to="/define-features" replace />}
+                />
+                <Route
+                  path="/define-features"
+                  element={<DefineFeaturesPage />}
+                />
+                <Route
+                  path="/version-management"
+                  element={<VersionManagementPage />}
+                />
+                <Route path="/feature-status" element={<FeatureStatusPage />} />
+                <Route path="/schema-tools" element={<SchemaToolsPage />} />
+                <Route
+                  path="*"
+                  element={<Navigate to="/define-features" replace />}
+                />
+              </Routes>
+            </Content>
           </Layout>
         </Layout>
       </Router>

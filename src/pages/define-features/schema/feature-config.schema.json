@@ -3,45 +3,66 @@
   "type": "object",
   "patternProperties": {
     "^.*$": {
-      "type": "object",
-      "description": "功能配置对象，每个 key 代表一个功能或子功能。",
-      "properties": {
-        "title": { "type": "string", "description": "功能或子功能的标题。" },
-        "description": {
-          "type": "string",
-          "description": "功能或子功能的描述。"
-        },
-        "params": {
-          "type": "object",
-          "description": "功能参数对象，每个 key 代表一个参数。",
-          "patternProperties": {
-            "^.*$": {
-              "type": "object",
-              "description": "参数配置对象。",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": ["string", "number", "boolean"],
-                  "enumDescriptions": ["字符串类型", "数字类型", "布尔类型"]
-                },
-                "title": { "type": "string", "description": "参数标题。" },
-                "description": { "type": "string", "description": "参数描述。" }
-              },
-              "required": ["type", "title"]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "patternProperties": {
-        "^((?!title$|description$|params$).)+$": {
-          "$ref": "#/$defs/featureNode"
-        }
-      },
-      "required": ["title"]
+      "$ref": "#/$defs/featureNode"
     }
   },
   "$defs": {
+    "featureParams": {
+      "type": "object",
+      "description": "功能参数对象，每个 key 代表一个参数。",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "description": "参数配置对象。",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["string", "number", "boolean", "enum"],
+              "enumDescriptions": [
+                "字符串类型",
+                "数字类型",
+                "布尔类型",
+                "枚举类型"
+              ]
+            },
+            "title": { "type": "string", "description": "参数标题。" },
+            "description": {
+              "type": "string",
+              "description": "参数描述。"
+            },
+            "min": {
+              "type": "number",
+              "description": "最小值，仅 type 为 number 时有效。"
+            },
+            "max": {
+              "type": "number",
+              "description": "最大值，仅 type 为 number 时有效。"
+            },
+            "enum": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "description": "枚举选项，仅 type 为 enum 时有效。字符串数组。",
+                  "items": { "type": "string" }
+                },
+                {
+                  "type": "array",
+                  "description": "枚举选项，仅 type 为 enum 时有效。数字数组。",
+                  "items": { "type": "number" }
+                }
+              ]
+            },
+            "enumDescriptions": {
+              "type": "array",
+              "description": "枚举选项的解释，与 enum 一一对应。",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["type", "title"]
+        }
+      },
+      "additionalProperties": false
+    },
     "featureNode": {
       "type": "object",
       "description": "功能或子功能对象，支持递归嵌套。",
@@ -52,25 +73,7 @@
           "description": "功能或子功能的描述。"
         },
         "params": {
-          "type": "object",
-          "description": "功能参数对象，每个 key 代表一个参数。",
-          "patternProperties": {
-            "^.*$": {
-              "type": "object",
-              "description": "参数配置对象。",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": ["string", "number", "boolean"],
-                  "description": "参数类型，可为 string、number 或 boolean。"
-                },
-                "title": { "type": "string", "description": "参数标题。" },
-                "description": { "type": "string", "description": "参数描述。" }
-              },
-              "required": ["type", "title"]
-            }
-          },
-          "additionalProperties": false
+          "$ref": "#/$defs/featureParams"
         }
       },
       "patternProperties": {
@@ -81,5 +84,82 @@
       "required": ["title"]
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "example": {
+    "featureA": {
+      "title": "功能A的标题",
+      "description": "功能A的描述",
+      "params": {
+        "params1": {
+          "type": "string",
+          "title": "功能A的参数1标题",
+          "description": "功能A的参数1"
+        },
+        "params2": {
+          "type": "number",
+          "title": "功能A的参数2标题",
+          "description": "功能A的参数2",
+          "min": 0,
+          "max": 100
+        },
+        "params3": {
+          "type": "enum",
+          "title": "功能A的枚举参数",
+          "description": "功能A的枚举参数描述",
+          "enum": ["A", "B", "C"],
+          "enumDescriptions": ["选项A", "选项B", "选项C"]
+        },
+        "params4": {
+          "type": "enum",
+          "title": "数字枚举参数",
+          "enum": [1, 2, 3],
+          "enumDescriptions": ["一", "二", "三"]
+        }
+      },
+      "childFeatureB": {
+        "title": "子功能B的标题",
+        "description": "子功能B的描述",
+        "params": {
+          "childParam1": {
+            "type": "boolean",
+            "title": "子功能参数1标题",
+            "description": "子功能参数1"
+          },
+          "childParam2": {
+            "type": "enum",
+            "title": "子功能枚举参数",
+            "enum": ["X", "Y"],
+            "enumDescriptions": ["选项X", "选项Y"]
+          }
+        },
+        "grandChildFeatureC": {
+          "title": "孙功能C的标题",
+          "description": "孙功能C的描述",
+          "params": {
+            "grandParam": {
+              "type": "number",
+              "title": "孙功能参数",
+              "min": 10,
+              "max": 20
+            }
+          }
+        }
+      }
+    },
+    "featureD": {
+      "title": "功能D的标题",
+      "params": {
+        "params3": {
+          "type": "string",
+          "title": "功能D的参数3标题"
+        },
+        "params4": {
+          "type": "enum",
+          "title": "功能D的枚举参数",
+          "enum": ["A", "B", "C"],
+          "enumDescriptions": ["选项A", "选项B", "选项C"]
+        }
+      }
+    }
+  }
 }
