@@ -7,6 +7,7 @@ import { Card, Tabs } from "antd";
 import { CodeOutlined } from "@ant-design/icons";
 
 import styles from "./App.module.css";
+import TypeDefinitionsTab from "./components/TypeDefinitionsTab";
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState("editor");
@@ -34,7 +35,7 @@ const App: React.FC = () => {
       key: "version-feature-list",
       label: (
         <span>
-          <CodeOutlined /> 版本及功能清单
+          <CodeOutlined /> 版本及功能清单约束
         </span>
       ),
       children: <VersionFeatureListTab />,
@@ -47,6 +48,15 @@ const App: React.FC = () => {
         </span>
       ),
       children: <ConfigVersionFeatureListTab />,
+    },
+    {
+      key: "type-definitions",
+      label: (
+        <span>
+          <CodeOutlined /> 类型定义
+        </span>
+      ),
+      children: <TypeDefinitionsTab />,
     },
   ];
 
@@ -63,6 +73,8 @@ const App: React.FC = () => {
                 | "help"
                 | "version-schema"
                 | "version-feature-list"
+                | "config-version-feature-list"
+                | "type-definitions"
             )
           }
           items={tabItems}

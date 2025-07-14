@@ -84,7 +84,9 @@
       "required": ["title"]
     }
   },
-  "additionalProperties": false,
+  "additionalProperties": {
+    "$ref": "#/$defs/featureNode"
+  },
   "example": {
     "featureA": {
       "title": "功能A",
