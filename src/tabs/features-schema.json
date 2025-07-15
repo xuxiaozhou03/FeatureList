@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "patternProperties": {
+    "^[a-zA-Z_][a-zA-Z0-9_]*$": { "$ref": "#/definitions/feature" }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "feature": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "功能项名称" },
+        "description": { "type": "string", "description": "功能项说明" },
+        "config": {
+          "type": "object",
+          "description": "功能项配置参数",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": "object",
+              "description": "功能项名称",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "参数名称"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["boolean", "number", "string"],
+                  "description": "参数类型"
+                },
+                "description": { "type": "string", "description": "参数说明" },
+                "enum": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "枚举值列表"
+                },
+                "enumDesc": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "枚举值说明，顺序与 enum 对应"
+                },
+                "default": {
+                  "description": "参数默认值，可为任意类型，需与 type 匹配"
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "是否必填"
+                }
+              },
+              "required": ["name", "type"],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["name", "config"],
+      "additionalProperties": { "$ref": "#/definitions/feature" }
+    }
+  }
+}

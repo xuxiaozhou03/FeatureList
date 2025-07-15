@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.sidebar {
+  width: 200px;
+  min-width: 160px;
+  background: #fafbfc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 20px;
+}
+.list {
+  margin-top: 16px;
+}
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  min-width: 260px;
+}
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.btn {
+  width: 100%;
+  margin-bottom: 16px;
+}
