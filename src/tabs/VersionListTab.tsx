@@ -11,7 +11,6 @@ import {
   Select,
 } from "antd";
 import MonacoEditor from "@monaco-editor/react";
-import styles from "./VersionListTab.module.css";
 import { useFeatureJson } from "../hooks/useFeatureJson";
 import { useVersions, type IVersion } from "../hooks/useVersions";
 
@@ -172,23 +171,28 @@ const VersionListTab: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <Typography.Title level={4} className={styles.title}>
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="w-80 min-w-[240px] max-w-xs bg-white border-r border-gray-200 shadow-lg flex flex-col p-6">
+        <Typography.Title
+          level={4}
+          className="!mb-4 !text-lg !font-bold !text-blue-900 text-center"
+        >
           版本列表
         </Typography.Title>
-        <Button type="primary" className={styles.btn} onClick={handleAdd}>
+        <Button type="primary" className="w-full mb-4" onClick={handleAdd}>
           新增版本
         </Button>
         <List
-          className={styles.list}
+          className="flex-1 overflow-y-auto"
           dataSource={versions}
           renderItem={(v) => (
             <List.Item
-              style={{
-                background: selectedName === v.name ? "#e6f7ff" : undefined,
-                cursor: "pointer",
-              }}
+              className={
+                "rounded-lg mb-2 cursor-pointer transition-all " +
+                (selectedName === v.name
+                  ? "bg-blue-50 border border-blue-200"
+                  : "hover:bg-gray-50 border border-transparent")
+              }
               onClick={() => setSelectedName(v.name)}
               actions={[
                 <Button
@@ -206,38 +210,31 @@ const VersionListTab: React.FC = () => {
               ]}
             >
               <List.Item.Meta
-                title={<span style={{ fontWeight: 500 }}>{v.name}</span>}
+                title={
+                  <span className="font-semibold text-base">{v.name}</span>
+                }
                 description={
-                  <span style={{ color: "#888" }}>{v.description}</span>
+                  <span className="text-gray-500 text-sm">{v.description}</span>
                 }
               />
             </List.Item>
           )}
         />
       </div>
-      <div style={{ flex: 1 }}>
-        <Card className={styles.card}>
-          <div
-            style={{ display: "flex", alignItems: "center", marginBottom: 16 }}
-          >
+      <div className="flex-1 flex flex-col p-8">
+        <Card className="rounded-2xl shadow-2xl p-8 bg-white">
+          <div className="flex items-center mb-6">
             <Typography.Title
               level={4}
-              className={styles.title}
-              style={{ marginBottom: 0 }}
+              className="!mb-0 !text-lg !font-bold !text-blue-900"
             >
               {selectedVersion
                 ? `编辑版本：${selectedVersion.name}`
                 : "请选择左侧版本"}
             </Typography.Title>
             {selectedVersion && (
-              <div
-                style={{
-                  marginLeft: "auto",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <span style={{ marginRight: 8 }}>编辑模式：</span>
+              <div className="ml-auto flex items-center">
+                <span className="mr-2 text-gray-500">编辑模式：</span>
                 <Switch
                   checkedChildren="Monaco"
                   unCheckedChildren="表单"
@@ -282,21 +279,21 @@ const VersionListTab: React.FC = () => {
                 layout="vertical"
                 initialValues={selectedVersion}
                 onFinish={handleFormFinish}
-                style={{ maxWidth: 500, margin: "0 auto" }}
+                className="max-w-lg mx-auto"
               >
                 {versionSchema &&
                   renderFormItems(
                     versionSchema as unknown as VersionSchemaProperty
                   )}
-                <Form.Item style={{ marginTop: 32 }}>
-                  <Button type="primary" htmlType="submit">
+                <Form.Item className="mt-8">
+                  <Button type="primary" htmlType="submit" className="w-full">
                     保存
                   </Button>
                 </Form.Item>
               </Form>
             )
           ) : (
-            <div style={{ color: "#888", textAlign: "center", marginTop: 32 }}>
+            <div className="text-gray-400 text-center mt-12">
               请选择左侧版本进行编辑。
             </div>
           )}

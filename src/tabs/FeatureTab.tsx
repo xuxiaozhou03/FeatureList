@@ -3,7 +3,6 @@ import MonacoEditor from "@monaco-editor/react";
 import { useFeatureJson } from "../hooks/useFeatureJson";
 import type { DefineFeature, FeatureJson } from "../hooks/useFeatureJson";
 import schema from "./features-schema.json";
-import styles from "./FeatureTab.module.css";
 import { Tag } from "antd";
 
 // 属性配置渲染组件
@@ -14,19 +13,24 @@ const ConfigView: React.FC<{ config?: DefineFeature["config"] }> = ({
   const configList = Object.values(config);
   if (configList.length === 0) return null;
   return (
-    <div className={styles.configBlock}>
-      <div className={styles.configTitle}>属性配置：</div>
-      <ul className={styles.configList}>
+    <div className="my-4">
+      <div className="text-blue-600 font-semibold text-base mb-1">
+        属性配置：
+      </div>
+      <ul className="list-none pl-0">
         {configList.map((attr, idx) => (
-          <li key={attr.name || idx} className={styles.configItem}>
-            <span className={styles.attrName}>{attr.name}</span>
+          <li
+            key={attr.name || idx}
+            className="flex items-center bg-gray-50 rounded-lg px-4 py-2 mb-2 shadow-sm text-base"
+          >
+            <span className="font-medium text-gray-800">{attr.name}</span>
             {attr.type && (
-              <Tag color="blue" style={{ marginLeft: 4 }}>
+              <Tag color="blue" className="ml-2">
                 {attr.type}
               </Tag>
             )}
             {attr.description && (
-              <span className={styles.attrDesc}>（{attr.description}）</span>
+              <span className="ml-2 text-gray-500">（{attr.description}）</span>
             )}
           </li>
         ))}
@@ -55,20 +59,27 @@ const DefineFeatureView: React.FC<{ feature: DefineFeature }> = ({
     )
     .map((arr) => arr[1] as DefineFeature);
   return (
-    <div className={styles.featureNode}>
-      <div className={styles.featureTitle}>
-        <strong>{name}</strong>
+    <div className="ml-8 border-l-4 border-gray-200 pl-6 mb-8 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-2xl">
+      <div className="text-lg font-bold text-gray-800 flex items-center mb-1">
+        <span>{name}</span>
         {description && (
-          <span className={styles.featureDesc}>（{description}）</span>
+          <span className="ml-3 text-base text-gray-500 font-normal">
+            （{description}）
+          </span>
         )}
       </div>
       <ConfigView config={feature.config} />
       {children.length > 0 && (
-        <div className={styles.childrenBlock}>
-          <div className={styles.childrenTitle}>子功能：</div>
-          <ul className={styles.childrenList}>
+        <div className="mt-4">
+          <div className="text-orange-500 font-semibold text-base mb-1">
+            子功能：
+          </div>
+          <ul className="list-none pl-0">
             {children.map((child, idx) => (
-              <li key={child.name || idx} className={styles.childItem}>
+              <li
+                key={child.name || idx}
+                className="mb-3 relative before:content-[''] before:absolute before:left-[-28px] before:top-4 before:w-6 before:h-1 before:bg-gray-200 before:rounded"
+              >
                 <DefineFeatureView feature={child} />
               </li>
             ))}
@@ -83,7 +94,7 @@ const DefineFeatureView: React.FC<{ feature: DefineFeature }> = ({
 const FeatureJsonView: React.FC<{ data: FeatureJson }> = ({ data }) => {
   if (!data) return null;
   return (
-    <div className={styles.featureJsonView}>
+    <div className="mt-2">
       {Object.values(data).map((feature, idx) => (
         <DefineFeatureView key={feature.name || idx} feature={feature} />
       ))}
@@ -99,11 +110,13 @@ const FeatureTab: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>功能清单定义与预览</h2>
-      <div className={styles.row}>
-        <div className={styles.col}>
-          <div className={styles.editor}>
+    <div className="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen py-12">
+      <h2 className="text-3xl font-extrabold text-center text-blue-900 tracking-wide mb-12">
+        功能清单定义与预览
+      </h2>
+      <div className="flex gap-12 justify-center items-start">
+        <div className="flex-1 max-w-xl">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
             <MonacoEditor
               height="80vh"
               defaultLanguage="json"
@@ -129,8 +142,10 @@ const FeatureTab: React.FC = () => {
             />
           </div>
         </div>
-        <div className={styles.col}>
-          <h3 className={styles.treeTitle}>功能清单树预览</h3>
+        <div className="flex-1 max-w-xl">
+          <h3 className="text-xl font-bold text-gray-700 mb-6 tracking-wide">
+            功能清单树预览
+          </h3>
           <FeatureJsonView data={json} />
         </div>
       </div>
