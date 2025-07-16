@@ -1,14 +1,15 @@
 import React from "react";
 import { useFeatureJson } from "../hooks/useFeatureJson";
 import MonacoEditor from "@monaco-editor/react";
+import styles from "./VersionTab.module.css";
 
 const VersionTab: React.FC = () => {
   const { versionSchema, tsDef } = useFeatureJson();
 
   return (
-    <div style={{ display: "flex", gap: 32, height: "70vh" }}>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{ marginBottom: 8 }}>版本约束文件预览</h3>
+    <div className={styles.wrapper}>
+      <div className={styles.section}>
+        <h3 className={styles.title}>版本约束文件预览</h3>
         <MonacoEditor
           height="100%"
           defaultLanguage="json"
@@ -24,8 +25,8 @@ const VersionTab: React.FC = () => {
           }}
         />
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{ marginBottom: 8 }}>TypeScript 定义预览</h3>
+      <div className={styles.section}>
+        <h3 className={styles.title}>TypeScript 定义预览</h3>
         <MonacoEditor
           height="100%"
           defaultLanguage="typescript"

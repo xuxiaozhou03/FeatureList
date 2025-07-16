@@ -1,28 +1,94 @@
 import React from "react";
 import MonacoEditor from "@monaco-editor/react";
-import { useFeatureJson, type FeatureJson } from "../hooks/useFeatureJson";
+import { useFeatureJson } from "../hooks/useFeatureJson";
+import type { DefineFeature, FeatureJson } from "../hooks/useFeatureJson";
 import schema from "./features-schema.json";
 import styles from "./FeatureTab.module.css";
+import { Tag } from "antd";
 
-const FeatureTreePreview: React.FC<{ json: FeatureJson }> = ({ json }) => {
-  const renderTree = (node: Record<string, unknown>, key = "root") => {
-    if (!node) return null;
-    return (
-      <ul className={styles.ul}>
-        {Object.entries(node).map(([k, v]) => (
-          <li key={key + k} className={styles.li}>
-            <span className={styles.key}>{k}</span>
-            {typeof v === "object" && v !== null ? (
-              renderTree(v as Record<string, unknown>, key + k)
-            ) : (
-              <span>: {String(v)}</span>
+// 属性配置渲染组件
+const ConfigView: React.FC<{ config?: DefineFeature["config"] }> = ({
+  config,
+}) => {
+  if (!config) return null;
+  const configList = Object.values(config);
+  if (configList.length === 0) return null;
+  return (
+    <div className={styles.configBlock}>
+      <div className={styles.configTitle}>属性配置：</div>
+      <ul className={styles.configList}>
+        {configList.map((attr, idx) => (
+          <li key={attr.name || idx} className={styles.configItem}>
+            <span className={styles.attrName}>{attr.name}</span>
+            {attr.type && (
+              <Tag color="blue" style={{ marginLeft: 4 }}>
+                {attr.type}
+              </Tag>
+            )}
+            {attr.description && (
+              <span className={styles.attrDesc}>（{attr.description}）</span>
             )}
           </li>
         ))}
       </ul>
-    );
-  };
-  return <div className={styles.tree}>{json ? renderTree(json) : null}</div>;
+    </div>
+  );
+};
+
+// 单个功能渲染组件
+const DefineFeatureView: React.FC<{ feature: DefineFeature }> = ({
+  feature,
+}) => {
+  const name = String(feature.name || "");
+  const description = String(feature.description || "");
+  // 子功能：遍历除 name/description/config 外的所有 DefineFeature 类型字段
+  const children: DefineFeature[] = Object.entries(feature)
+    .filter(
+      ([k, v]) =>
+        k !== "name" &&
+        k !== "description" &&
+        k !== "config" &&
+        v &&
+        typeof v === "object" &&
+        "name" in v &&
+        "description" in v
+    )
+    .map((arr) => arr[1] as DefineFeature);
+  return (
+    <div className={styles.featureNode}>
+      <div className={styles.featureTitle}>
+        <strong>{name}</strong>
+        {description && (
+          <span className={styles.featureDesc}>（{description}）</span>
+        )}
+      </div>
+      <ConfigView config={feature.config} />
+      {children.length > 0 && (
+        <div className={styles.childrenBlock}>
+          <div className={styles.childrenTitle}>子功能：</div>
+          <ul className={styles.childrenList}>
+            {children.map((child, idx) => (
+              <li key={child.name || idx} className={styles.childItem}>
+                <DefineFeatureView feature={child} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// FeatureJson 根节点渲染组件
+const FeatureJsonView: React.FC<{ data: FeatureJson }> = ({ data }) => {
+  if (!data) return null;
+  return (
+    <div className={styles.featureJsonView}>
+      {Object.values(data).map((feature, idx) => (
+        <DefineFeatureView key={feature.name || idx} feature={feature} />
+      ))}
+    </div>
+  );
 };
 
 const FeatureTab: React.FC = () => {
@@ -65,7 +131,7 @@ const FeatureTab: React.FC = () => {
         </div>
         <div className={styles.col}>
           <h3 className={styles.treeTitle}>功能清单树预览</h3>
-          <FeatureTreePreview json={json} />
+          <FeatureJsonView data={json} />
         </div>
       </div>
     </div>

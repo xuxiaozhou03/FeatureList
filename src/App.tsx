@@ -1,43 +1,54 @@
 import React from "react";
-import { Tabs } from "antd";
+import { Layout, Menu } from "antd";
+import { Link, Routes, Route, useLocation } from "react-router-dom";
 import FeatureTab from "./tabs/FeatureTab";
 import VersionTab from "./tabs/VersionTab";
 import VersionListTab from "./tabs/VersionListTab";
 
+const { Header, Content } = Layout;
+const menuItems = [
+  { key: "/", label: <Link to="/">功能清单定义</Link> },
+  { key: "/version", label: <Link to="/version">版本约束与类型定义</Link> },
+  { key: "/list", label: <Link to="/list">版本列表管理</Link> },
+];
+
 const App: React.FC = () => {
+  const location = useLocation();
   return (
-    <div
-      style={{
-        inset: 0,
-        width: "100vw",
-        background: "#fff",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Tabs
-        defaultActiveKey="1"
-        style={{ flex: 1, display: "flex", flexDirection: "column" }}
-        tabBarStyle={{ margin: 0 }}
-        items={[
-          {
-            key: "1",
-            label: "功能清单定义",
-            children: <FeatureTab />,
-          },
-          {
-            key: "2",
-            label: "版本约束与类型定义",
-            children: <VersionTab />,
-          },
-          {
-            key: "3",
-            label: "版本列表管理",
-            children: <VersionListTab />,
-          },
-        ]}
-      />
-    </div>
+    <Layout style={{ minHeight: "100vh", background: "var(--color-bg)" }}>
+      <Header
+        style={{
+          background: "var(--color-card)",
+          boxShadow: "var(--shadow)",
+          padding: 0,
+        }}
+      >
+        <Menu
+          mode="horizontal"
+          selectedKeys={[location.pathname === "/" ? "/" : location.pathname]}
+          items={menuItems}
+          style={{
+            fontSize: 16,
+            borderBottom: "none",
+            background: "var(--color-card)",
+          }}
+        />
+      </Header>
+      <Content
+        style={{
+          padding: "var(--space)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<FeatureTab />} />
+          <Route path="/version" element={<VersionTab />} />
+          <Route path="/list" element={<VersionListTab />} />
+        </Routes>
+      </Content>
+    </Layout>
   );
 };
 
