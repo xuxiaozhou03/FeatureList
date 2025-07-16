@@ -1,5 +1,7 @@
 export interface IFeature {
-  // 工作台
+  /**
+   * 工作台
+   */
   dashboard: {
     // 是否启用工作台
     enabled: boolean;
@@ -24,7 +26,7 @@ export interface IFeature {
        * @default true
        * @description 如果为 false，则用户无法创建新项目，只能查看已有项目
        */
-      canCreate: boolean;
+      canCreate?: boolean;
     };
   };
   // 代码
@@ -32,6 +34,9 @@ export interface IFeature {
     enabled: boolean;
     // 代码编辑器配置
     repos: {
+      /**
+       * @default false
+       */
       enabled: boolean;
     };
   };

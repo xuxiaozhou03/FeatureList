@@ -1,10 +1,11 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import FeatureListPage from "./pages/FeatureListPage";
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0);
-
   return (
     <>
       <div>
@@ -28,6 +29,20 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <nav style={{ padding: 16 }}>
+        <Link to="/">首页</Link> | <Link to="/features">功能清单</Link>
+      </nav>
+      <Routes>
+        <Route path="/features" element={<FeatureListPage />} />
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
 
