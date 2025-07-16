@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -65,59 +66,4 @@
     --color-text: #f3f4f6;
     --color-border: #334155;
   }
-}
-/* Modern base element styles */
-html {
-  box-sizing: border-box;
-}
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: var(--transition);
-}
-a:hover {
-  text-decoration: underline;
-}
-
-button {
-  font-family: inherit;
-  font-size: 1rem;
-  padding: 0.5em 1.2em;
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
-  background: var(--color-primary);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-button:hover {
-  background: var(--color-secondary);
-}
-
-input,
-textarea,
-select {
-  font-family: inherit;
-  font-size: 1rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--color-border);
-  padding: 0.5em 1em;
-  background: #fff;
-  transition: var(--transition);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  background: var(--color-bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius);
 }
