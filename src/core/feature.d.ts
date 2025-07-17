@@ -39,6 +39,19 @@ export interface IFeature {
        */
       enabled: boolean;
     };
+    /**
+     * lfs
+     */
+    lfs: {
+      enabled: boolean;
+      config: {
+        /**
+         * 最大文件大小
+         * @default 100MB
+         */
+        maxFileSize: number;
+      };
+    };
   };
   // 文档
   docs: {

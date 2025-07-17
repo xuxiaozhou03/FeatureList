@@ -35,8 +35,20 @@ function Home() {
 function App() {
   return (
     <Router>
-      <nav style={{ padding: 16 }}>
-        <Link to="/">首页</Link> | <Link to="/features">功能清单</Link>
+      <nav className="px-8 py-4 bg-white shadow flex items-center gap-6 text-lg font-medium">
+        <Link
+          to="/"
+          className="text-blue-600 no-underline px-3 py-1 rounded transition-colors hover:bg-blue-50"
+        >
+          首页
+        </Link>
+        <span className="text-gray-300">|</span>
+        <Link
+          to="/features"
+          className="text-blue-600 no-underline px-3 py-1 rounded transition-colors hover:bg-blue-50"
+        >
+          功能清单
+        </Link>
       </nav>
       <Routes>
         <Route path="/features" element={<FeatureListPage />} />

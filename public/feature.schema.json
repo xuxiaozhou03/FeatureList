@@ -20,15 +20,10 @@
               "maximum": 100
             }
           },
-          "required": [
-            "maxItems"
-          ]
+          "required": ["maxItems"]
         }
       },
-      "required": [
-        "enabled",
-        "config"
-      ],
+      "required": ["enabled", "config"],
       "title": "工作台"
     },
     "projects": {
@@ -50,10 +45,7 @@
           "required": []
         }
       },
-      "required": [
-        "enabled",
-        "config"
-      ]
+      "required": ["enabled", "config"]
     },
     "code": {
       "type": "object",
@@ -69,15 +61,31 @@
               "default": false
             }
           },
-          "required": [
-            "enabled"
-          ]
+          "required": ["enabled"]
+        },
+        "lfs": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "config": {
+              "type": "object",
+              "properties": {
+                "maxFileSize": {
+                  "type": "number",
+                  "title": "最大文件大小",
+                  "default": "100MB"
+                }
+              },
+              "required": ["maxFileSize"]
+            }
+          },
+          "required": ["enabled", "config"],
+          "title": "lfs"
         }
       },
-      "required": [
-        "enabled",
-        "repos"
-      ]
+      "required": ["enabled", "repos", "lfs"]
     },
     "docs": {
       "type": "object",
@@ -90,35 +98,19 @@
           "properties": {
             "mode": {
               "type": "string",
-              "enum": [
-                "markdown",
-                "rich-text"
-              ],
+              "enum": ["markdown", "rich-text"],
               "title": "文档模式",
               "description": "文档的编辑模式，可以是 \"markdown\" 或 \"rich-text\"",
               "default": "markdown",
-              "enumDescriptions": [
-                "使用 Markdown 编辑器",
-                "使用富文本编辑器"
-              ]
+              "enumDescriptions": ["使用 Markdown 编辑器", "使用富文本编辑器"]
             }
           },
-          "required": [
-            "mode"
-          ]
+          "required": ["mode"]
         }
       },
-      "required": [
-        "enabled",
-        "config"
-      ]
+      "required": ["enabled", "config"]
     }
   },
-  "required": [
-    "dashboard",
-    "projects",
-    "code",
-    "docs"
-  ],
+  "required": ["dashboard", "projects", "code", "docs"],
   "title": "IFeature"
 }
