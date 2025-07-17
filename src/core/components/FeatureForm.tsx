@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Input, Switch, Form, Select } from "antd";
-import type { ISchema, IFeatureSchema } from "./useFeatureSchema";
+import type { ISchema, IFeatureSchema } from "../hooks/useFeatureSchema";
 
 interface FeatureFormProps {
   schema: ISchema;

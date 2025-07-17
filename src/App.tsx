@@ -1,60 +1,68 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import FeatureListPage from "./pages/FeatureListPage";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
+import { FeatureListPage, FeaturesProviderWrapper } from "./core";
+import IndexPage from "./pages/indexPage";
+import DemoPage from "./pages/demoPage";
+import React from "react";
 
-function Home() {
-  const [count, setCount] = useState(0);
+function AppNav() {
+  const location = useLocation();
+  const list = [
+    {
+      to: "/",
+      label: "首页",
+    },
+    {
+      to: "/features",
+      label: "功能清单",
+    },
+    {
+      to: "/demo",
+      label: "演示页面",
+    },
+  ];
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <nav className="px-8 py-4 bg-white shadow flex items-center gap-6 text-lg font-medium relative z-10">
+      {list.map((item, idx) => (
+        <React.Fragment key={item.to}>
+          {idx > 0 && <span className="text-gray-300">|</span>}
+          <Link
+            to={item.to}
+            className={
+              `no-underline px-3 py-1 rounded transition-colors hover:bg-blue-50 ` +
+              (location.pathname === item.to ||
+              (item.to !== "/" && location.pathname.startsWith(item.to))
+                ? "text-white bg-blue-600"
+                : "text-blue-600")
+            }
+          >
+            {item.label}
+          </Link>
+        </React.Fragment>
+      ))}
+    </nav>
   );
 }
 
 function App() {
   return (
-    <Router>
-      <nav className="px-8 py-4 bg-white shadow flex items-center gap-6 text-lg font-medium">
-        <Link
-          to="/"
-          className="text-blue-600 no-underline px-3 py-1 rounded transition-colors hover:bg-blue-50"
-        >
-          首页
-        </Link>
-        <span className="text-gray-300">|</span>
-        <Link
-          to="/features"
-          className="text-blue-600 no-underline px-3 py-1 rounded transition-colors hover:bg-blue-50"
-        >
-          功能清单
-        </Link>
-      </nav>
-      <Routes>
-        <Route path="/features" element={<FeatureListPage />} />
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+    <FeaturesProviderWrapper>
+      <Router>
+        <div className="flex h-screen flex-col overflow-hidden">
+          <AppNav />
+          <Routes>
+            <Route path="/features" element={<FeatureListPage />} />
+            <Route path="/demo" element={<DemoPage />} />
+            <Route path="/" element={<IndexPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </FeaturesProviderWrapper>
   );
 }
 

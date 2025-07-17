@@ -90,7 +90,7 @@ function fillDefaults(schema: ISchema): any {
 }
 
 const useFeatureSchema = () => {
-  const [value, setValue] = useState<any>(null);
+  const [defaultValue, setDefaultValue] = useState<any>(null);
   const [schema, setSchema] = useState<ISchema | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -99,7 +99,8 @@ const useFeatureSchema = () => {
     const ret = await fetch("/feature.schema.json");
     const _schema = (await ret.json()) as ISchema;
     setSchema(_schema);
-    setValue(fillDefaults(_schema));
+    const defaultValue = fillDefaults(_schema);
+    setDefaultValue(defaultValue);
     setLoading(false);
   };
 
@@ -107,7 +108,7 @@ const useFeatureSchema = () => {
     onInit();
   }, []);
 
-  return { loading, value, setValue, schema };
+  return { loading, schema, defaultValue };
 };
 
 export default useFeatureSchema;
