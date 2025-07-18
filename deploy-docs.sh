@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 
+
+
 # 构建项目，生成 dist 目录
 pnpm build
 
@@ -10,27 +12,9 @@ if [ ! -d "dist" ]; then
   exit 1
 fi
 
-# 提交当前更改，避免切换分支报错
-git add deploy-docs.sh
-git commit -m "chore: update deploy script" || echo "No changes to commit"
+# 提交 dist 目录（不会切换分支）
+git add dist
+git commit -m "build: update dist" || echo "No changes to commit"
 
-# 切换到 docs 分支
-git checkout docs
-
-# 清空分支内容（保留 .git 文件夹）
-git rm -rf ./*
-
-# 复制 dist 内容到根目录
-cp -r dist/* ./
-
-# 添加所有文件
-git add .
-
-# 提交更改
-git commit -m "deploy: update docs branch with dist" || echo "No changes to commit"
-
-# 推送到远程 docs 分支
-git push origin docs
-
-# 切回主分支
-git checkout main
+# 强制推送 dist 到 docs 分支（不切分支，解决非 fast-forward 问题）
+git push origin `git subtree split --prefix dist main`:docs --force
