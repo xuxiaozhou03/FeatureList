@@ -1,5 +1,5 @@
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   Link,
@@ -75,7 +75,7 @@ function App() {
             }
           />
           <Route
-            path="/features"
+            path="features"
             element={
               <div className="flex h-screen flex-col overflow-hidden">
                 <AppNav />
@@ -84,7 +84,7 @@ function App() {
             }
           />
           <Route
-            path="/demo"
+            path="demo"
             element={
               <div className="flex h-screen flex-col overflow-hidden">
                 <AppNav />
