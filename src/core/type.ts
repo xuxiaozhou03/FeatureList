@@ -7,3 +7,7 @@ export interface VersionItem {
   features: IFeature;
   createdAt: number;
 }
+
+export interface VersionLocalItem extends Omit<VersionItem, "features"> {
+  features: string;
+}

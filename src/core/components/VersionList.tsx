@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useVersionList } from "../hooks/useVersionList";
 import {
@@ -14,6 +13,8 @@ import {
 import useFeatureSchema from "../hooks/useFeatureSchema";
 import type { VersionItem } from "../type";
 import ConfigVersion from "./ConfigVersion";
+import { encryptEditConfig } from "../helper";
+import type { IFeature } from "../../type/feature";
 
 // 下载版本为 JSON 文件
 function downloadVersion(v: VersionItem) {
@@ -38,46 +39,50 @@ const VersionList: React.FC = () => {
 
   const [form] = Form.useForm();
   const [showForm, setShowForm] = useState(false);
-  const [editConfig, setEditConfig] = useState<any>(null);
+  const [featuresConfig, setFeaturesConfig] = useState<IFeature | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
 
   // 打开新增表单
   const openAdd = () => {
     setEditId(null);
     form.setFieldsValue({ name: "", desc: "" });
-    setEditConfig(defaultValue);
+    setFeaturesConfig(defaultValue);
     setShowForm(true);
   };
 
   // 打开编辑表单
-  const openEdit = (v: any) => {
+  const openEdit = (v: VersionItem) => {
     setEditId(v.id);
     form.setFieldsValue({ name: v.name, desc: v.desc });
-    setEditConfig(v.features);
+    setFeaturesConfig(v.features);
     setShowForm(true);
   };
 
   // 提交表单
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    if (!editConfig) {
+    if (!featuresConfig) {
       message.warning("请填写功能清单配置");
       return;
     }
+    const ret = await encryptEditConfig(featuresConfig);
+    console.log(ret);
+
     if (editId) {
-      updateVersion(editId, values.name, values.desc, editConfig);
+      updateVersion(editId, values.name, values.desc, featuresConfig);
       message.success("编辑成功");
     } else {
-      addVersion(values.name, values.desc, editConfig);
+      addVersion(values.name, values.desc, featuresConfig);
       message.success("新建成功");
     }
     setShowForm(false);
     setEditId(null);
-    setEditConfig(null);
+    setFeaturesConfig(null);
     form.resetFields();
   };
 
   // 递归统计已开启功能数
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function countEnabledFeatures(obj: any): number {
     if (!obj || typeof obj !== "object") return 0;
     let count = 0;
@@ -170,7 +175,7 @@ const VersionList: React.FC = () => {
         onClose={() => {
           setShowForm(false);
           setEditId(null);
-          setEditConfig(null);
+          setFeaturesConfig(null);
           form.resetFields();
         }}
         width={"80vw"}
@@ -180,7 +185,7 @@ const VersionList: React.FC = () => {
               onClick={() => {
                 setShowForm(false);
                 setEditId(null);
-                setEditConfig(null);
+                setFeaturesConfig(null);
                 form.resetFields();
               }}
               style={{ marginRight: 8 }}
@@ -216,8 +221,8 @@ const VersionList: React.FC = () => {
           {schema && (
             <ConfigVersion
               schema={schema}
-              value={editConfig}
-              setValue={setEditConfig}
+              value={featuresConfig}
+              setValue={setFeaturesConfig}
             />
           )}
         </div>

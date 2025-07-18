@@ -10,7 +10,8 @@
     "dev:customer1": "VERSION=customer1 vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "wasm-build": "cd src/core/wasm/rs && wasm-pack build --target web --out-dir ../pkg"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",

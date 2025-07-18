@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import MonacoEditor from "@monaco-editor/react";
 import FeatureForm from "./FeatureForm";
 import type { ISchema } from "../hooks/useFeatureSchema";

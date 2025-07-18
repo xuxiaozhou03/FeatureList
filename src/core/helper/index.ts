@@ -1,26 +1,23 @@
-export const VersionMap = {
-  // 社区版
-  community: "community",
-  // 企业版
-  enterprise: "enterprise",
-  // 专业版
-  premium: "premium",
-} as const;
+// 加密和解密 editConfig，依赖 wasm 包
+import init, {
+  obfuscate_config,
+  deobfuscate_config,
+} from "../wasm/pkg/config_crypto";
 
-export const getVersion = (
-  version: string
-): "community" | "enterprise" | "premium" => {
-  if (VersionMap[version as keyof typeof VersionMap]) {
-    return VersionMap[version as keyof typeof VersionMap];
+let wasmInitialized = false;
+export async function encryptEditConfig(config: object): Promise<string> {
+  if (!wasmInitialized) {
+    await init();
+    wasmInitialized = true;
   }
-  return VersionMap.premium;
-};
+  return obfuscate_config(JSON.stringify(config));
+}
 
-export const VersionNames = Object.values(VersionMap);
-
-export const getVersionExtesion = (version: string): string[] => {
-  const realVersion = getVersion(version);
-  return [".ts", ".tsx", ".js", ".jsx"].reduce((acc, ext) => {
-    return [...acc, `.${realVersion}${ext}`, ext];
-  }, [] as string[]);
-};
+export async function decryptEditConfig(str: string): Promise<object> {
+  if (!wasmInitialized) {
+    await init();
+    wasmInitialized = true;
+  }
+  const json = deobfuscate_config(str);
+  return JSON.parse(json);
+}
