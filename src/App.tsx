@@ -5,13 +5,18 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { FeatureListPage, FeaturesProviderWrapper } from "./core";
+import {
+  FeatureListPage,
+  FeaturesProviderWrapper,
+  useFeaturesContext,
+} from "./core";
 import IndexPage from "./pages/indexPage";
 import DemoPage from "./pages/demoPage";
 import React from "react";
 
 function AppNav() {
   const location = useLocation();
+  const { envVersion } = useFeaturesContext();
   const list = [
     {
       to: "/",
@@ -45,6 +50,12 @@ function AppNav() {
           </Link>
         </React.Fragment>
       ))}
+      <div className="flex-1 flex justify-end">
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded bg-gray-100 text-gray-600 text-sm font-mono border border-gray-200 shadow-sm">
+          <span className="text-gray-400">构建版本：</span>
+          <span className="font-bold text-blue-600">{envVersion}</span>
+        </span>
+      </div>
     </nav>
   );
 }
@@ -53,14 +64,34 @@ function App() {
   return (
     <FeaturesProviderWrapper>
       <Router>
-        <div className="flex h-screen flex-col overflow-hidden">
-          <AppNav />
-          <Routes>
-            <Route path="/features" element={<FeatureListPage />} />
-            <Route path="/demo" element={<DemoPage />} />
-            <Route path="/" element={<IndexPage />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div className="flex h-screen flex-col overflow-hidden">
+                <IndexPage />
+              </div>
+            }
+          />
+          <Route
+            path="/features"
+            element={
+              <div className="flex h-screen flex-col overflow-hidden">
+                <AppNav />
+                <FeatureListPage />
+              </div>
+            }
+          />
+          <Route
+            path="/demo"
+            element={
+              <div className="flex h-screen flex-col overflow-hidden">
+                <AppNav />
+                <DemoPage />
+              </div>
+            }
+          />
+        </Routes>
       </Router>
     </FeaturesProviderWrapper>
   );

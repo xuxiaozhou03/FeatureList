@@ -50,10 +50,13 @@ async function saveVersions(list: VersionItem[]) {
 
 export function useVersionList() {
   const [versions, setVersions] = useState<VersionItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const onInit = async () => {
+    setLoading(true);
     const loaded = await loadVersions();
     setVersions(loaded);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -103,5 +106,6 @@ export function useVersionList() {
     updateVersion,
     deleteVersion,
     setVersions,
+    loading,
   };
 }

@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "schema-build": "node cli/index.js",
     "wasm-build": "cd src/core/wasm/rs && wasm-pack build --target web --out-dir ../pkg"
   },
   "dependencies": {

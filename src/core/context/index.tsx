@@ -1,7 +1,6 @@
 import React from "react";
 import type { VersionItem } from "../type";
 import { useVersionList } from "../hooks/useVersionList";
-import mockList from "../hooks/mock";
 
 const useFeaturesInit = () => {
   const versionFromEnv = __VERSION__ || "enterprise";
@@ -13,7 +12,7 @@ const useFeaturesInit = () => {
   );
 
   // 后续请求后端接口
-  const { versions } = useVersionList();
+  const { versions, loading } = useVersionList();
 
   const version =
     versions.find((v) => v.name === currentVersion) ?? versions[0];
@@ -24,7 +23,7 @@ const useFeaturesInit = () => {
     versionItem,
     setVersionItem,
     version,
-    features: version?.features || mockList[0].features,
+    features: version?.features,
     versions: versions.map((v) => ({
       label: v.name,
       value: v.name,
@@ -32,6 +31,8 @@ const useFeaturesInit = () => {
     isEnterprise: currentVersion === "enterprise",
     isCommunity: currentVersion === "community",
     isPreimium: currentVersion === "premium",
+    envVersion: versionFromEnv,
+    loading,
   };
 
   return ctx;
@@ -64,6 +65,10 @@ export const FeaturesProviderWrapper: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const ctx = useFeaturesInit();
+
+  if (ctx.loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <FeaturesContext.Provider value={ctx}>{children}</FeaturesContext.Provider>
