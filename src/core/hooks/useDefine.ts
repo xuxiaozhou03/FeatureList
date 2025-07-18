@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 const useDefine = () => {
   const [str, setStr] = useState<string>("");
   useEffect(() => {
-    fetch("/define.text")
+    fetch(
+      import.meta.env.MODE === "production"
+        ? location.href + "/define.text"
+        : "/define.text"
+    )
       .then((res) => res.text())
       .then((text) => {
         setStr(text);

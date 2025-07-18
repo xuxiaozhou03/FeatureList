@@ -96,7 +96,11 @@ const useFeatureSchema = () => {
 
   const onInit = async () => {
     setLoading(true);
-    const ret = await fetch("/feature.schema.json");
+    const ret = await fetch(
+      import.meta.env.MODE === "production"
+        ? location.href + "/feature.schema.json"
+        : "/feature.schema.json"
+    );
     const _schema = (await ret.json()) as ISchema;
     setSchema(_schema);
     const defaultValue = fillDefaults(_schema);

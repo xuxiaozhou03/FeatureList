@@ -218,6 +218,7 @@ if (features.dashboard.enabled) {
         footer={null}
         width={"96vw"}
         height={"96vh"}
+        getContainer={false}
       >
         <FeatureListPage />
       </Modal>
@@ -228,6 +229,7 @@ if (features.dashboard.enabled) {
         footer={null}
         width={"96vw"}
         height={"96vh"}
+        getContainer={false}
       >
         <DemoPage />
       </Modal>
