@@ -21,7 +21,7 @@ const getVersionExtesion = (version: string): string[] => {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/FeatureList/",
+  base: process.env.NODE_ENV === "production" ? "/FeatureList/" : "/",
   resolve: {
     extensions: getVersionExtesion(process.env.VERSION || "enterprise"),
   },

@@ -61,9 +61,10 @@ function AppNav() {
 }
 
 function App() {
+  const basename = import.meta.env.MODE === "production" ? "/FeatureList" : "";
   return (
     <FeaturesProviderWrapper>
-      <Router>
+      <Router basename={basename}>
         <Routes>
           <Route
             path="/"
