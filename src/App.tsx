@@ -219,6 +219,7 @@ if (features.dashboard.enabled) {
         width={"96vw"}
         height={"96vh"}
         getContainer={false}
+        centered
       >
         <FeatureListPage />
       </Modal>
@@ -228,6 +229,7 @@ if (features.dashboard.enabled) {
         onCancel={() => setDemoVisible(false)}
         footer={null}
         width={"96vw"}
+        centered
         height={"96vh"}
         getContainer={false}
       >
